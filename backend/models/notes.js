@@ -1,4 +1,9 @@
 const mongoose=require("mongoose")
+const contenschema= new mongoose.Schema({
+    heading:{type:String,default:""},
+    desc:{type:String,default:""},
+    img:{type:String,default:""}
+})
 
 const noteSchema= new mongoose.Schema({
     dirid:{
@@ -13,6 +18,10 @@ const noteSchema= new mongoose.Schema({
         type:String,
         default:""
     },
+    content:{
+        type:[contenschema]
+    }
+    ,
     grade:{
         type:String
     },

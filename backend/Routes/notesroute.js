@@ -3,10 +3,12 @@ const Directorymodel = require('../models/Directory');
 const Notesmodel = require('../models/notes');
 const {error,response} = require('../utils/Error');
 const mongoose = require("mongoose");
+const { authenticate } = require('../utils/middleware');
 
 
 // create
 router.post("/",async(req,res)=>{
+
     const dirid=req.body.dirid;
     if(!dirid)return error(res,404,{message:"getting dirid"})
 
@@ -42,14 +44,31 @@ router.get('/all',async(req,res)=>{
          return error(res,500,{error:e,message:"on getting notes"})
     }
 })
+//getnotes by id
+router.get('/:id',async(req,res)=>{
+    // id is dirid
+    const {id}=req.params
+    
+    try{ console.log(id,"get")
+        const allnotes=await Notesmodel.find({dirid:id});
+       
+       
+        
+
+        return response(res,200,allnotes)
+    }catch(e){
+         return error(res,500,{error:e,message:"on getting notes"})
+    }
+})
 
 
 // update dir
-router.put("/:id",async(req,res)=>{
+router.put("/:id",authenticate,async(req,res)=>{
     const {id}=req.params
+
     try{
-        const updatedir= await Directorymodel.findByIdAndUpdate(id,
-            {set:req.body},{new:true}
+        const updatedir= await Notesmodel.findByIdAndUpdate(id,
+            {$set:req.body},{new:true}
         )
              return response(res,200,updatedir)
 
@@ -59,7 +78,7 @@ router.put("/:id",async(req,res)=>{
     }
 })
 //delete
-router.delete("/:id",async(req,res)=>{
+router.delete("/:id",authenticate,async(req,res)=>{
     const {id}=req.params
     try{
         const note = await Notesmodel.findById(id);
@@ -69,18 +88,12 @@ router.delete("/:id",async(req,res)=>{
 //    const dir=await Directorymodel.findById(dirid.toString());
 //    console.log(dir);
 //    response(res,200,"send");
-   const updateDir = await Directorymodel.findByIdAndUpdate(
-      dirid.toString(),
-      {
-        $pull: {
-          topic: {
-            noteId: new mongoose.Types.ObjectId(id)
-          }
-        }
-      },
-      { new: true }
-    );
-     console.log(dirid)
+
+//    const updateDir = await Directorymodel.findByIdAndUpdate(
+//       dirid.toString(),
+//         {$set:req.body},{new:true}
+//     );
+//      console.log(dirid)
 
 
         const deletenotes= await Notesmodel.findByIdAndDelete(id)

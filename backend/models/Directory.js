@@ -9,9 +9,13 @@ const topicSchema = new mongoose.Schema({
 });
 
 const DirectorySchema= new mongoose.Schema({
+    uid:{
+        type:String,
+        required:true
+    },
     Dirname:{
         type:String,
-        require:true,
+        required:true,
         ref:"Directory"
     },
     desc:{

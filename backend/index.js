@@ -8,6 +8,12 @@ const dirrouter=require("./Routes/DirRoute.js")
 const notes=require("./Routes/notesroute.js")
 const cookieParser = require("cookie-parser");
 dotenv.config();
+const cors = require("cors");
+
+app.use(cors({
+  origin: "http://localhost:5173", // Vite default port
+  credentials: true // if using cookies
+}));
 app.use(cookieParser())
 app.use(express.json());
 app.use('/api/user',userrouter);

@@ -1,10 +1,12 @@
 const router=require('express').Router();
 const Directorymodel = require('../models/Directory');
 const {error,response} = require('../utils/Error');
+const { authenticate } = require('../utils/middleware');
 
 
 // create
-router.post("/",async(req,res)=>{
+router.post("/",authenticate,async(req,res)=>{
+    
     try{
     const dir=await new Directorymodel(req.body)
 
@@ -20,7 +22,9 @@ router.post("/",async(req,res)=>{
 //getall
 router.get('/all',async(req,res)=>{
     try{
+       
         const alldir=await Directorymodel.find();
+         console.log("req");
         return response(res,200,alldir)
     }catch(e){
          return error(res,500,{error:e,message:"on getting dir"})
@@ -29,7 +33,7 @@ router.get('/all',async(req,res)=>{
 
 
 // update dir
-router.put("/:id",async(req,res)=>{
+router.put("/:id",authenticate,async(req,res)=>{
     const {id}=req.params
     try{
         const updatedir= await Directorymodel.findByIdAndUpdate(id,
