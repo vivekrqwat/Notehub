@@ -26,7 +26,9 @@ router.post('/',authenticate,async (req,res)=>{
 })
 //get
 router.get('/:id',async (req,res)=>{
-    const {id}=req.params
+      if (req.user._id.toString() !== id) {
+        return error(res, 400, { message: "Not a valid user" });
+    }
     
     console.log(id)
     try{
@@ -44,6 +46,7 @@ router.get('/:id',async (req,res)=>{
 router.get('/',async (req,res)=>{
    
     try{
+        console.log("ppost")
         const allpost=await Postmodel.find();
         return response(res,200,allpost);
     }
@@ -54,8 +57,10 @@ router.get('/',async (req,res)=>{
 
 })
 // update user
-router.put('/update/:id',async(req,res)=>{
-      const {id}=req.params
+router.put('/update/:id',authenticate,async(req,res)=>{
+      if (req.user._id.toString() !== id) {
+        return error(res, 400, { message: "Not a valid user" });
+    }
  
   
   
@@ -73,7 +78,9 @@ router.put('/update/:id',async(req,res)=>{
 })
 //delete
 router.delete('/update/:id',async(req,res)=>{
-     const {id}=req.params
+       if (req.user._id.toString() !== id) {
+        return error(res, 400, { message: "Not a valid user" });
+    }
    
   
     try{
