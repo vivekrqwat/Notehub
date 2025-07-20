@@ -5,6 +5,10 @@ import { create } from 'zustand';
 export const UserStore = create((set) => ({
   user: null,
   isAutth:true,
+  noteid:null,
+  setnoteid:(id)=>{
+    set({noteid:id})
+  },
   checkAuth: async () => {
     try {
 

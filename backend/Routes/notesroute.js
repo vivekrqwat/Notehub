@@ -10,21 +10,22 @@ const { authenticate } = require('../utils/middleware');
 router.post("/",async(req,res)=>{
 
     const dirid=req.body.dirid;
+    console.log(req.body,"notes")
     if(!dirid)return error(res,404,{message:"getting dirid"})
 
     try{
     const notes=await new Notesmodel(req.body)
 
 
-    const updatedir=await Directorymodel.findByIdAndUpdate(dirid,{
-        $push:{
-            topic:{
-                noteId:notes._id
-            }
-        }
-    })
+    // const updatedir=await Directorymodel.findByIdAndUpdate(dirid,{
+    //     $push:{
+    //         topic:{
+    //             noteId:notes._id
+    //         }
+    //     }
+    // })
         
-    if(!updatedir) return error(res,404,{message:"error on updating dir notes"})
+    // if(!updatedir) return error(res,404,{message:"error on updating dir notes"})
    const savenotes=await notes.save();
     return response(res,200,savenotes)
 
@@ -47,7 +48,7 @@ router.get('/all',async(req,res)=>{
 //getnotes by id
 router.get('/:id',async(req,res)=>{
     // id is dirid
-    const {id}=req.params
+    const id=req.params.id
     
     try{ console.log(id,"get")
         const allnotes=await Notesmodel.find({dirid:id});
@@ -60,12 +61,29 @@ router.get('/:id',async(req,res)=>{
          return error(res,500,{error:e,message:"on getting notes"})
     }
 })
+//get all notes of selected dir  note
+router.get('/all/:id',async(req,res)=>{
+    // id is dirid
+    const id=req.params.id
+    
+    try{ console.log(id,"get")
+        const allnotes=await Notesmodel.findById(id);
+       
+       
+        
+
+        return response(res,200,allnotes)
+    }catch(e){
+        console.log(e)
+         return error(res,500,{error:e,message:"on getting notes"})
+    }
+})
 
 
 // update dir
 router.put("/:id",authenticate,async(req,res)=>{
-    const {id}=req.params
-
+    const id=req.params.id
+console.log(req.body,"update")
     try{
         const updatedir= await Notesmodel.findByIdAndUpdate(id,
             {$set:req.body},{new:true}
@@ -79,7 +97,7 @@ router.put("/:id",authenticate,async(req,res)=>{
 })
 //delete
 router.delete("/:id",authenticate,async(req,res)=>{
-    const {id}=req.params
+    const id=req.params.id
     try{
         const note = await Notesmodel.findById(id);
     if (!note) return error(res, 404, { message: "Note not found" });

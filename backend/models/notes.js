@@ -7,7 +7,7 @@ const contenschema= new mongoose.Schema({
 
 const noteSchema= new mongoose.Schema({
     dirid:{
-          type: mongoose.Schema.Types.ObjectId,
+          type:String,
         required:true
     },
     desc:{

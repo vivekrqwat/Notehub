@@ -3,13 +3,15 @@ import { FiChevronDown, FiPlus } from "react-icons/fi";
 import { FaArrowRight } from "react-icons/fa";
 import axios from "axios";
 import { UserStore } from "../store/Userstroe";
+import { useNavigate } from "react-router-dom";
 
 export default function Directory() {
   const [openDir, setOpenDir] = useState(null);
   const [showFormIndex, setShowFormIndex] = useState(null);
   const [dirdata, setdirdata] = useState([{}]);
   const [notes, setnotes] = useState([]);
-const{user}=UserStore()
+const{user,setnoteid}=UserStore()
+const navigate=useNavigate();
   useEffect(() => {
     const dirdata = async () => {
       try {
@@ -27,12 +29,35 @@ const{user}=UserStore()
     setOpenDir(openDir === id ? null : id);
     try {
       const notesdata = await axios.get(`/api/notes/${id}`);
-      console.log(notesdata.data);
+      console.log("notes",notesdata.data);
       setnotes(notesdata.data);
+      
     } catch (e) {
       console.log(e);
     }
   };
+
+  const setNotes=async(id,e)=>{
+    e.preventDefault()
+    const data={
+      dirid:id,
+      desc:e.target.desc.value,
+      heading:e.target.desc.value,
+      grade:e.target.value
+    }
+    try{
+      console.log(data,"data is"); 
+      const res=await axios.post("/api/notes/",data)
+      console.log(res.data)
+
+      setShowFormIndex(null);
+
+
+
+    }catch(e){
+      console.log(e)
+    }
+  }
 
   const getGradeColorClass = (grade) => {
     switch (grade) {
@@ -46,6 +71,12 @@ const{user}=UserStore()
         return "bg-gray-500";
     }
   };
+  const gotoNotes=(id,e)=>{
+    e.preventDefault();
+    setnoteid(id);
+    navigate("/notes")
+
+  }
 
   return (
     <div className="w-full h-full p-6 bg-[#1F1D1D] text-white">
@@ -90,15 +121,17 @@ const{user}=UserStore()
 
             {/* Add Note Form */}
             {showFormIndex === index && (
-              <form className="bg-[#1c1c1c] p-4 rounded-md mb-3 space-y-3">
+              <form className="bg-[#1c1c1c] p-4 rounded-md mb-3 space-y-3" onSubmit={(e)=>setNotes(dir._id,e)}>
                 <input
                   type="text"
                   placeholder="Heading"
+                  name="heading"
                   className="w-full px-3 py-2 rounded bg-[#2d2d2d] text-white"
                 />
                 <textarea
                   placeholder="Description"
                   rows={3}
+                  name="desc"
                   className="w-full px-3 py-2 rounded bg-[#2d2d2d] text-white"
                 ></textarea>
 
@@ -119,7 +152,7 @@ const{user}=UserStore()
                     <div className="w-6 h-4 rounded-sm bg-green-500"></div>
                     <input
                       type="radio"
-                      name={`grade-${index}`}
+                      name={`grade`}
                       value="green"
                       className="accent-green-500"
                     />
@@ -129,7 +162,7 @@ const{user}=UserStore()
                     <div className="w-6 h-4 rounded-sm bg-red-500"></div>
                     <input
                       type="radio"
-                      name={`grade-${index}`}
+                      name={`grade`}
                       value="red"
                       className="accent-red-500"
                     />
@@ -139,7 +172,7 @@ const{user}=UserStore()
                     <div className="w-6 h-4 rounded-sm bg-yellow-400"></div>
                     <input
                       type="radio"
-                      name={`grade-${index}`}
+                      name={`grade`}
                       value="yellow"
                       className="accent-yellow-400"
                     />
@@ -161,6 +194,7 @@ const{user}=UserStore()
   <div className="mt-2 space-y-2 pl-6">
     {notes.map((note, noteIdx) => (
       <div
+      onClick={(e)=>gotoNotes(note._id,e)}
         key={noteIdx}
         className="flex items-center hover:bg-[#3A3A3A] px-3 py-2 rounded-md cursor-pointer"
       >
