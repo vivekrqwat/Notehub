@@ -6,11 +6,13 @@ const { authenticate } = require('../utils/middleware');
 
 // create
 router.post("/",authenticate,async(req,res)=>{
-    
+  
     try{
+          console.log("post dir",req.body)
     const dir=await new Directorymodel(req.body)
 
     const savedir=await dir.save();
+    console.log("dir created")
     return response(res,200,savedir)
 
     }
@@ -30,7 +32,18 @@ router.get('/all',async(req,res)=>{
          return error(res,500,{error:e,message:"on getting dir"})
     }
 })
-
+//get by id 
+router.get('/:id',async(req,res)=>{
+    try{
+       const uid=req.params.id
+       console.log("dir id",uid)
+        const alldir=await Directorymodel.find({uid:uid});
+         console.log("req");
+        return response(res,200,alldir)
+    }catch(e){
+         return error(res,500,{error:e,message:"on getting dir"})
+    }
+})
 
 // update dir
 router.put("/:id",authenticate,async(req,res)=>{

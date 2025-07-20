@@ -2,17 +2,18 @@ import { useState, useEffect } from "react";
 import { FiChevronDown, FiPlus } from "react-icons/fi";
 import { FaArrowRight } from "react-icons/fa";
 import axios from "axios";
+import { UserStore } from "../store/Userstroe";
 
 export default function Directory() {
   const [openDir, setOpenDir] = useState(null);
   const [showFormIndex, setShowFormIndex] = useState(null);
   const [dirdata, setdirdata] = useState([{}]);
   const [notes, setnotes] = useState([]);
-
+const{user}=UserStore()
   useEffect(() => {
     const dirdata = async () => {
       try {
-        const resdata = await axios.get("/api/dir/all/");
+        const resdata = await axios.get(`/api/dir/${user._id}`);
         console.log("dirdata", resdata);
         setdirdata(resdata.data);
       } catch (e) {

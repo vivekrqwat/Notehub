@@ -6,7 +6,18 @@ const {assignwebtoken,authenticate} = require('../utils/middleware');
 
 const router=require('express').Router();
 
+//auth
+router.get("/check",authenticate,async(req,res)=>{
+    try{
+        const user=req.user;
+        if(!user)return
+        // console.log("backend user",user)
+        return response(res,200,user);
+    }catch(e){
+        return error(res,400,{message:"not valid"})
+    }
 
+})
 //register
 
 router.post('/signup',  async (req,res)=>{
@@ -18,14 +29,14 @@ router.post('/signup',  async (req,res)=>{
             if(!newuser)error(res,401,"invalid credential");
             const usertokendata={
                 email:newuser.email,
-          
+                username:newuser.username,
                 id:newuser._id.toString()
 
             }
 
             const saveuser=await newuser.save();
-            assignwebtoken(usertokendata,res);
-       return  response(res,200,saveuser)
+           await  assignwebtoken(usertokendata,res);
+       return  response(res,200,usertokendata)
     }catch(e){
        return error(res,500,{error:e,message:"signup_error"})
     }
@@ -45,12 +56,12 @@ router.post('/login',async (req,res)=>{
         if(!validpassowrd)error(res,401,"invalid password");
          const usertokendata={
                 eamil:user.email,
-              
+                user:user.username,
                 id:user._id.toString()
 
             }
-        assignwebtoken(usertokendata,res);
-        return response(res,200,user)
+       await  assignwebtoken(usertokendata,res);
+        return response(res,200,usertokendata)
     }catch(e){
          return error(res,500,{error:e,message:"login_error"})
     }
@@ -97,6 +108,9 @@ router.get('/',async (req,res)=>{
 //update user
 router.put('/update/:id',async(req,res)=>{
      const {id}=req.params
+    if (req.user._id.toString() !== id) {
+        return error(res, 400, { message: "Not a valid user" });
+    }
      const {password}=req.body
     try{
         if(password){

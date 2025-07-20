@@ -18,6 +18,7 @@ router.post('/',authenticate,async (req,res)=>{
     try{
         const post=await new Postmodel(req.body)
         savepost=await post.save();
+        console.log("posted")
         return response(res,200,savepost)
     }catch(e){
          return error(res,500,{error:e,message:"post_error"})

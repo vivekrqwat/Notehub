@@ -1,31 +1,57 @@
+import './App.css';
+import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { UserStore } from './store/Userstroe.jsx';
 
-import './App.css'
-import Navbar from './Components/Nav'
-import SideLeft from './Components/Sideleft'
-import HomePage from './Components/MainBox'
-import ProfileRight from './Components/Profile'
-import { Route, Routes, BrowserRouter } from 'react-router-dom';
-import {Layout} from './pages/Layout'
-import Discussion from './Components/Disscusiono'
-import Directory from './Components/Directory'
-import Notes from './Components/Notes'
-import Signup from './pages/Signup'
-import Login from './pages/login'
-
+import { Layout } from './pages/Layout';
+import HomePage from './Components/MainBox';
+import Discussion from './Components/Disscusiono';
+import Directory from './Components/Directory';
+import Notes from './Components/Notes';
+import Signup from './pages/Signup';
+import Login from './pages/login';
+import Loading from './pages/Loading.jsx';
+import Collaborative from './Components/Collaborative.jsx';
 
 export default function App() {
+  const { user, checkAuth,isAuth } = UserStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+console.log("user check",user)
+
+if(isAuth&&!user){
+  return <Loading></Loading>
+}
+
+
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-         <Route index element={<HomePage />} />
-         <Route path="/post" element={<Discussion></Discussion>}></Route>
-          <Route path="dir" element={<Directory></Directory>}></Route>
-          <Route path="notes" element={<Notes></Notes>}></Route>
-        </Route>
-        <Route path='/signup' element={<Signup></Signup>}></Route>
-        <Route path='/login' element={<Login></Login>}></Route>
+      <Routes>{
+      user?
+      
+        (<Route path="/" element={<Layout /> }>
+          <Route index element={user ? <HomePage />: <Navigate to="/login" />} />
+          <Route path="post" element={user ?<Discussion />: <Navigate to="/login" />} />
+          <Route path="dir" element={<Directory />} />
+          <Route path="notes" element={<Notes />} />
+           <Route path="collab" element={<Collaborative></Collaborative>} />
+        </Route>)
+      :<Route
+          path="/login"
+          element={!user ? <Login /> : <Navigate to="/" />}
+        />}
+    
 
+        <Route
+          path="/signup"
+          element={!user ? <Signup /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/login"
+          element={!user ? <Login /> : <Navigate to="/" />}
+        />
       </Routes>
     </BrowserRouter>
   );

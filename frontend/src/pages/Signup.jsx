@@ -1,6 +1,25 @@
+import axios from "axios";
 import React from "react";
+import { UserStore } from "../store/Userstroe";
 
 const Signup = () => {
+  const {signup,login,user}=UserStore()
+
+const signupdata=(e)=>{
+      e.preventDefault();
+  const formdata={
+     username: e.target.username.value,
+  email: e.target.email.value,
+  password: e.target.password.value
+  }
+  console.log(user)
+   signup(formdata);
+ 
+
+}
+
+
+
   return (
     <div className="min-h-screen bg-[#ECECEC] flex  items-center justify-center  px-4">
       <div className="flex flex-col md:flex-row rounded-md overflow-hidden max-w-6xl w-full gap-6 items-center md:items-end">
@@ -11,12 +30,13 @@ const Signup = () => {
             <span className="text-[#FFA500] ml-2">HUB</span>
           </h1>
           <h2 className="text-xl font-semibold text-gray-700">SIGN IN</h2>
-          <form className="space-y-4">
+          <form className="space-y-4"  onSubmit={signupdata}>
             <div>
               <label className="block text-sm font-semibold mb-1" htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
+                name="email"
                 placeholder="@enter your mail"
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
               />
@@ -26,6 +46,7 @@ const Signup = () => {
               <input
                 type="text"
                 id="username"
+                name="username"
                 placeholder="@enter username"
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
               />
@@ -35,11 +56,13 @@ const Signup = () => {
               <input
                 type="password"
                 id="password"
+                 name="password"
                 placeholder="@enter your password"
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
               />
             </div>
             <button
+           
               type="submit"
               className="w-full bg-[#332B2B] text-white py-2 rounded hover:bg-[#1f1a1a] transition"
             >

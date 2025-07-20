@@ -3,16 +3,16 @@ const mongoose=require("mongoose")
 const UserSchema= new mongoose.Schema({
         username:{
             type:String,
-            require:[true,"please enter username"]
+            required:[true,"please enter username"]
         },
          email:{
             type:String,
-            require:[true,"please enter username"],
+            required:[true,"please enter username"],
             unique:true
         },
         password:{
             type:String,
-            require:true
+            required:true
         },
         Profilepic:{
             type:String,
@@ -31,4 +31,4 @@ const UserSchema= new mongoose.Schema({
 
 })
 const Usermodel= new mongoose.model('Users',UserSchema);
-module .exports=Usermodel
+module.exports=Usermodel

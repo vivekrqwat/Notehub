@@ -1,29 +1,42 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { UserStore } from "../store/Userstroe";
 
 // components/Discussion.jsx
 export default function Discussion() {
   const [post, setPost] = useState([]);
   const [message, setMessage] = useState("");
   const [image, setImage] = useState(null);
+  const { user } = UserStore();
+
+  const fetchPosts = async () => {
+    try {
+      const res = await axios.get("/api/post/");
+      setPost(res.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
-    const postfetch = async () => {
-      try {
-        const res = await axios.get("/api/post/");
-        setPost(res.data);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    postfetch();
+    fetchPosts();
   }, []);
 
-  const handleSend = () => {
-    console.log("Message:", message);
-    console.log("Image:", image);
-    setMessage("");
-    setImage(null);
+  const handleSend = async () => {
+    const postdata = {
+      username: user.username,
+      email: user?.email,
+      desc: message,
+    };
+
+    try {
+      await axios.post("/api/post/", postdata);
+      setMessage("");
+      setImage(null);
+      fetchPosts();
+    } catch (e) {
+      console.log("Post error:", e);
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -73,6 +86,7 @@ export default function Discussion() {
           {/* Message Input */}
           <input
             type="text"
+            name="desc"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="@type message"
