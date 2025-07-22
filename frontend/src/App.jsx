@@ -12,6 +12,7 @@ import Signup from './pages/Signup';
 import Login from './pages/login';
 import Loading from './pages/Loading.jsx';
 import Collaborative from './Components/Collaborative.jsx';
+import ProfilePage from './pages/profilepage.jsx';
 
 export default function App() {
   const { user, checkAuth,isAuth } = UserStore();
@@ -43,7 +44,7 @@ if(isAuth&&!user){
           element={!user ? <Login /> : <Navigate to="/" />}
         />}
     
-
+          <Route path="/profile/:id"  element={user ? <ProfilePage></ProfilePage>: <Navigate to="/" />} ></Route>
         <Route
           path="/signup"
           element={!user ? <Signup /> : <Navigate to="/" />}

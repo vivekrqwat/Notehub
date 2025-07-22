@@ -27,11 +27,12 @@ router.post('/',authenticate,async (req,res)=>{
 })
 //get
 router.get('/:id',async (req,res)=>{
-      if (req.user._id.toString() !== id) {
-        return error(res, 400, { message: "Not a valid user" });
-    }
+    const id=req.params.id
+    //   if (req.user._id.toString() !== id) {
+    //     return error(res, 400, { message: "Not a valid user" });
+    // }
     
-    console.log(id)
+    console.log("post",id)
     try{
        const post=await Postmodel.find({uid:id});
          return response(res,200,post);
