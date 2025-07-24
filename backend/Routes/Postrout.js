@@ -1,9 +1,10 @@
 const Postmodel = require('../models/Post');
-// const Usermodel = require('../models/User');
+const Usermodel = require('../models/User');
 const {error,response} = require('../utils/Error');
 const bcrypt=require("bcryptjs");
 const { authenticate } = require('../utils/middleware');
 const router=require('express').Router();
+const moment=require("moment")
 
 
 //create
@@ -18,7 +19,20 @@ router.post('/',authenticate,async (req,res)=>{
     try{
         const post=await new Postmodel(req.body)
         savepost=await post.save();
-        console.log("posted")
+        const formatted = moment().format('YYYY-MM-DD');
+        console.log(req.body.uid,"user id")
+        try{
+      const updatedUser = await Usermodel.findByIdAndUpdate(
+      req.body.uid,
+      { $push: { submission: formatted } },
+      { new: true }
+    );
+    console.log(updatedUser,"updated")
+}catch(e){console.log(e)}
+    
+        
+
+        console.log("posted",formatted)
         return response(res,200,savepost)
     }catch(e){
          return error(res,500,{error:e,message:"post_error"})

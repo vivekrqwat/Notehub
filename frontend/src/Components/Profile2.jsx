@@ -20,7 +20,7 @@ const Profile = () => {
                 const res=await axios.get(`/api/user/${id}`);
                 const res2=await axios.get(`/api/post/${id}`)
 
-                console.log("post",res2.data)
+                // console.log("user",res.data)
             setpostdata(res2.data)
             setuserdata(res.data)
         
@@ -29,7 +29,7 @@ const Profile = () => {
         }
         if (id) fetchdata();
     },[])
- console.log("user",postdata)
+ console.log("user data",userdata?.submission)
 
 
 
@@ -54,7 +54,7 @@ const Profile = () => {
       {/* Contribution Graph (Scrollable on small screens) */}
       <div className="bg-[#2a2a2a] rounded-xl shadow-md overflow-x-auto p-4">
         <div className="min-w-[400px]">
-          <GitGraph activeDays={["2024-10-28", "2025-04-29", "2023-10-30"]} />
+          <GitGraph activeDays={userdata?.submission} />
         </div>
       </div>
       

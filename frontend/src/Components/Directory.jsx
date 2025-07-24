@@ -48,7 +48,9 @@ const navigate=useNavigate();
     try{
       console.log(data,"data is"); 
       const res=await axios.post("/api/notes/",data)
-      console.log(res.data)
+      console.log(user._id)
+      const res2=await axios.post(`/api/user/submision/${user._id}`,data)
+      console.log(res2.data)
 
       setShowFormIndex(null);
 

@@ -3,7 +3,7 @@ const Usermodel = require('../models/User');
 const {error,response} = require('../utils/Error');
 const bcrypt=require("bcryptjs");
 const {assignwebtoken,authenticate} = require('../utils/middleware');
-
+const moment = require("moment");
 const router=require('express').Router();
 
 //auth
@@ -78,8 +78,8 @@ router.get('/:id',authenticate,async (req,res)=>{
     try{
         const user=await Usermodel.findById(id);
           if(!user)error(res,401,"user not found");
-          const {password,...other}=user._doc
-          return response(res,200,other)
+        //   const {password,...other}=user._doc
+          return response(res,200,user)
     }
     catch(e){
     return error(res,500,{error:e,message:"getting_id__error"})
@@ -128,6 +128,26 @@ router.put('/update/:id',async(req,res)=>{
 
     }catch(e){
     return error(res,500,{error:e,message:"updating error"})
+
+    }
+})
+//submmisiion
+router.post("/submision/:id",authenticate,async(req,res)=>{
+    try{
+        const uid=req.params.id
+        const formatted = moment().format('YYYY-MM-DD');
+         console.log("successs",uid);
+        const updatedUser = await Usermodel.findByIdAndUpdate(
+              uid,
+              { $push: { submission: formatted } },
+              { new: true }
+            );
+           if (!updatedUser) return error(res, 404, { message: "User not found" });
+            return response(res,200,updatedUser);
+
+    }catch(e){
+         console.error("❌ Error updating submission:", e);
+            return error(res,500,{error:e,message:"updating error"})
 
     }
 })

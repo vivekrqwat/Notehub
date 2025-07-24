@@ -2,7 +2,6 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { UserStore } from "../store/Userstroe";
 
-// components/Discussion.jsx
 export default function Discussion() {
   const [post, setPost] = useState([]);
   const [message, setMessage] = useState("");
@@ -47,9 +46,9 @@ export default function Discussion() {
   };
 
   return (
-    <div className="relative h-full w-full bg-[#1F1D1D] rounded-md p-4">
-      {/* Scrollable Chat Area */}
-      <div className="overflow-y-auto h-full pb-24 space-y-4">
+    <div className="h-[calc(100vh-100px)] w-full bg-[#1F1D1D] rounded-md p-4 flex flex-col overflow-hidden">
+      {/* Scrollable Posts Area */}
+      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         {post.map((post) => (
           <div
             key={post._id}
@@ -62,15 +61,13 @@ export default function Discussion() {
                 <span className="text-xs text-gray-400">{post.email}</span>
               </div>
             </div>
-            <p className="text-gray-200 text-xs leading-relaxed">
-              <span className="font-medium">{post.title}</span> {post.desc}
-            </p>
+            <p className="text-gray-200 text-xs leading-relaxed">{post.desc}</p>
           </div>
         ))}
       </div>
 
-      {/* Bottom Bar (stays inside the box) */}
-      <div className="absolute bottom-4 left-4 right-4 bg-[#1F1D1D]">
+      {/* Bottom Input Box (Not Fixed) */}
+      <div className="bg-[#2A2A2A] mt-2 px-4 py-3 rounded-lg shadow-lg">
         <div className="flex items-center gap-2">
           {/* Upload */}
           <label className="cursor-pointer text-white bg-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-600">
@@ -103,7 +100,9 @@ export default function Discussion() {
         </div>
 
         {image && (
-          <div className="text-white text-xs mt-1 ml-1">Selected: {image.name}</div>
+          <div className="text-white text-xs mt-1 ml-1">
+            Selected: {image.name}
+          </div>
         )}
       </div>
     </div>

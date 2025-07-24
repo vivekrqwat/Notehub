@@ -23,7 +23,8 @@ const UserSchema= new mongoose.Schema({
             default:false
         },
         follower:[],
-        following:[]
+        following:[],
+        submission:[String]
 
 
 

@@ -1,9 +1,11 @@
 import React from "react";
 import moment from "moment";
-import { FaTrophy } from "react-icons/fa";
+import { UserStore } from "../store/Userstroe";
 
-export default function GitGraph() {
-  const activeDays = new Set(["2024-10-28", "2025-04-29", "2018-10-30"]);
+export default function GitGraph({ activeDays = [] }) {
+  const {user}=UserStore()
+  const activeSet = new Set(user?.submission);
+  console.log(user?.submission)
 
   const months = [
     { name: "January", days: 31 },
@@ -20,56 +22,44 @@ export default function GitGraph() {
     { name: "December", days: 31 },
   ];
 
-  function generateMonthGrid(days) {
-    let grid = [];
-    const daysSet = new Set(["2024-06-27", "2025-07-29", "2018-10-30"]);
+  function giveMonthArray(monthIndex, daysInMonth) {
+    const currentYear = moment().year();
+    let daygrid = [];
 
-    for (let i = 0; i < days; i++) {
-      const day = moment().subtract(i, "days").format("YYYY-MM-DD");
-      const isActive = daysSet.has(day);
-      grid.unshift(
+    for (let i = 1; i <= daysInMonth; i++) {
+      const date = moment({ year: currentYear, month: monthIndex, day: i }).format("YYYY-MM-DD");
+      const isActive = activeSet.has(date);
+
+      daygrid.push(
         <div
-          className={`h-[12px] w-[12px] rounded-sm ${
+          key={date}
+          title={date}
+          className={`h-4 w-4 rounded-sm ${
             isActive ? "bg-yellow-400" : "bg-yellow-100"
           }`}
-          key={i}
-        />
+        ></div>
       );
     }
 
-    return grid;
+    return daygrid;
   }
 
-  const userdata = {
-    email: "vivek@example.com", // Replace with dynamic email if needed
-  };
-
   return (
-    <div className="p-6 bg-[#0f172a]  flex flex-col items-center text-white">
-      {/* Profile Section */}
-      <div className="mb-6 text-center">
-        <div className="text-lg font-bold">NoteHub Contributions</div>
-        <div className="text-gray-400 text-sm break-words">{userdata.email}</div>
-
-        {/* Trophy + Rank + League */}
-        <div className="flex flex-col items-center mt-4">
-          <FaTrophy className="text-yellow-400 text-2xl" />
-          <div className="text-sm font-semibold mt-1">
-            Rank: <span className="text-yellow-300">1000</span>
-          </div>
-          <div className="text-xs text-gray-300">
-            League: <span className="text-yellow-200">Amateur</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Git Graph */}
-      <div className="grid grid-cols-12 gap-2 p-4 bg-white rounded-md shadow-xl text-black">
+    <div className="bg-[#2a2a2a] p-4 rounded-xl overflow-x-auto">
+      <div
+        className="grid gap-6 min-w-[800px]"
+        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))" }}
+      >
         {months.map((month, index) => (
           <div key={index}>
-            <span className="block text-center text-sm font-medium mb-1">{month.name}</span>
-            <div className="grid gap-[2px]" style={{ gridTemplateColumns: "repeat(auto-fill, 12px)" }}>
-              {generateMonthGrid(month.days)}
+            <div className="text-xs font-semibold text-gray-300 mb-2 text-center">
+              {month.name}
+            </div>
+            <div
+              className="grid gap-[3px] justify-center"
+              style={{ gridTemplateColumns: "repeat(auto-fill, 16px)" }}
+            >
+              {giveMonthArray(index, month.days)}
             </div>
           </div>
         ))}
