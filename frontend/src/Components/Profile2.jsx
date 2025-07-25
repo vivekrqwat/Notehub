@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import GitGraph from "./GitGraph";
+import scientist from"../avatar/scientist.png"
 
 const Profile = () => {
   const { id } = useParams();
@@ -11,8 +12,8 @@ const Profile = () => {
   useEffect(() => {
     const fetchdata = async () => {
       try {
-        const res = await axios.get(`/api/user/${id}`);
-        const res2 = await axios.get(`/api/post/${id}`);
+        const res = await axios.get(`/apii/user/${id}`);
+        const res2 = await axios.get(`/apii/post/${id}`);
         setpostdata(res2.data);
         setuserdata(res.data);
       } catch (e) {
@@ -30,7 +31,9 @@ const Profile = () => {
         {/* Left Profile Card */}
 <div className="bg-[#2a2a2a] w-full md:w-1/4 p-4 rounded-xl shadow-md min-h-[400px]">          <div className="text-lg font-bold mb-4 text-yellow-400">Profile</div>
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-600 rounded-full mb-3"></div>
+            <div className="w-24 h-24 ">
+              <img src={scientist} alt="" className="bg-gray-600 rounded-full mb-3" />
+            </div>
 
             <div className="text-lg font-semibold text-center">{userdata?.username}</div>
             <div className="text-gray-400 text-sm break-words text-center mb-4">{userdata?.email}</div>

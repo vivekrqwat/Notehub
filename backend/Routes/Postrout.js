@@ -21,14 +21,14 @@ router.post('/',authenticate,async (req,res)=>{
         savepost=await post.save();
         const formatted = moment().format('YYYY-MM-DD');
         console.log(req.body.uid,"user id")
-        try{
+       
       const updatedUser = await Usermodel.findByIdAndUpdate(
       req.body.uid,
       { $push: { submission: formatted } },
       { new: true }
     );
-    console.log(updatedUser,"updated")
-}catch(e){console.log(e)}
+    // console.log(updatedUser,"updated")
+
     
         
 
@@ -62,7 +62,7 @@ router.get('/:id',async (req,res)=>{
 router.get('/',async (req,res)=>{
    
     try{
-        console.log("ppost")
+        // console.log("ppost")
         const allpost=await Postmodel.find();
         return response(res,200,allpost);
     }

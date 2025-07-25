@@ -1,16 +1,18 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { UserStore } from "../store/Userstroe";
+import Upload from "../utils/Upload";
 
 export default function Discussion() {
   const [post, setPost] = useState([]);
   const [message, setMessage] = useState("");
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState();
+  const [loading, setloading] = useState(false);
   const { user } = UserStore();
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("/api/post/");
+      const res = await axios.get("/apii/post/");
       setPost(res.data);
     } catch (e) {
       console.log(e);
@@ -20,27 +22,39 @@ export default function Discussion() {
   useEffect(() => {
     fetchPosts();
   }, []);
+const handleSend = async () => {
+  try {
+    let imgUrl = "";
+    setloading(true);
+  imgUrl=await Upload(image)
+  console.log("url",imgUrl)
 
-  const handleSend = async () => {
     const postdata = {
       username: user.username,
       email: user?.email,
       desc: message,
+      img: imgUrl, // use URL not file object
     };
+    
 
-    try {
-      await axios.post("/api/post/", postdata);
-      setMessage("");
-      setImage(null);
-      fetchPosts();
-    } catch (e) {
-      console.log("Post error:", e);
-    }
-  };
+    await axios.post("/apii/post/", postdata);
 
-  const handleImageUpload = (e) => {
+    setMessage("");
+    setImage(null);
+    fetchPosts();
+  } catch (e) {
+    console.log("Post error:", e);
+  }finally{
+    setloading(false)
+  }
+
+};
+
+
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
+    console.log("yes2")
+    if(file){
       setImage(file);
     }
   };
@@ -48,23 +62,32 @@ export default function Discussion() {
   return (
     <div className="h-[calc(100vh-100px)] w-full bg-[#1F1D1D] rounded-md p-4 flex flex-col overflow-hidden">
       {/* Scrollable Posts Area */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-        {post.map((post) => (
-          <div
-            key={post._id}
-            className="bg-[#2C2C2C] rounded-lg px-4 py-3 text-sm text-white shadow"
-          >
-            <div className="flex items-center mb-1 gap-2">
-              <div className="w-7 h-7 bg-gray-500 rounded-full" />
-              <div className="flex flex-col gap-1">
-                <span className="font-semibold text-white">{post.username}</span>
-                <span className="text-xs text-gray-400">{post.email}</span>
-              </div>
-            </div>
-            <p className="text-gray-200 text-xs leading-relaxed">{post.desc}</p>
+    {loading ? (
+  <div className="flex-1 flex flex-col items-center justify-center text-white space-y-4">
+    <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 border-opacity-50"></div>
+    <p className="text-sm text-gray-300">Uploading your post...</p>
+  </div>
+) : (
+  <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+    {post.map((post) => (
+      <div
+        key={post._id}
+        className="bg-[#2C2C2C] rounded-lg px-4 py-3 text-sm text-white shadow"
+      >
+        <div className="flex items-center mb-1 gap-2">
+          <div className="w-7 h-7 bg-gray-500 rounded-full" />
+          <div className="flex flex-col gap-1">
+            <span className="font-semibold text-white">{post.username}</span>
+            <span className="text-xs text-gray-400">{post.email}</span>
           </div>
-        ))}
+        </div>
+        <p className="text-gray-200 text-xs leading-relaxed">{post.desc}</p>
+        {post.img && <img src={post.img}  className="w-[80%] max-h-[400px] mx-auto mt-2 rounded-md object-contain"  />}
       </div>
+    ))}
+  </div>
+)}
+
 
       {/* Bottom Input Box (Not Fixed) */}
       <div className="bg-[#2A2A2A] mt-2 px-4 py-3 rounded-lg shadow-lg">
@@ -99,11 +122,11 @@ export default function Discussion() {
           </button>
         </div>
 
-        {image && (
+        {/* {image && (
           <div className="text-white text-xs mt-1 ml-1">
-            Selected: {image.name}
+            <img src={}></img>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

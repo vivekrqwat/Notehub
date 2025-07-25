@@ -12,7 +12,7 @@ export const UserStore = create((set) => ({
   checkAuth: async () => {
     try {
 
-      const res = await axios.get('/api/user/check');
+      const res = await axios.get('/apii/user/check');
       set({ user: res.data });
     } catch {
       set({ user: null });
@@ -23,7 +23,7 @@ export const UserStore = create((set) => ({
   },
   signup:async(data)=>{
      try{
-   const res=await axios.post('/api/user/signup',data)
+   const res=await axios.post('/apii/user/signup',data)
    set({user:res.data})
     console.log(res.data)
   }
@@ -35,7 +35,7 @@ export const UserStore = create((set) => ({
   },
     login:async(data)=>{
      try{
-   const res=await axios.post('/api/user/login',data)
+   const res=await axios.post('/apii/user/login',data)
    set({user:res.data})
     console.log(res.data)
   }

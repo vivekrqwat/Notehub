@@ -11,11 +11,12 @@ export default function Directory() {
   const [dirdata, setdirdata] = useState([{}]);
   const [notes, setnotes] = useState([]);
 const{user,setnoteid}=UserStore()
+const[loading,setloading]=useState(false)
 const navigate=useNavigate();
   useEffect(() => {
     const dirdata = async () => {
       try {
-        const resdata = await axios.get(`/api/dir/${user._id}`);
+        const resdata = await axios.get(`/apii/dir/${user._id}`);
         console.log("dirdata", resdata);
         setdirdata(resdata.data);
       } catch (e) {
@@ -28,7 +29,7 @@ const navigate=useNavigate();
   const getnotes = async (id) => {
     setOpenDir(openDir === id ? null : id);
     try {
-      const notesdata = await axios.get(`/api/notes/${id}`);
+      const notesdata = await axios.get(`/apii/notes/${id}`);
       console.log("notes",notesdata.data);
       setnotes(notesdata.data);
       
@@ -46,10 +47,11 @@ const navigate=useNavigate();
       grade:e.target.value
     }
     try{
+      setloading(true)
       console.log(data,"data is"); 
-      const res=await axios.post("/api/notes/",data)
+      const res=await axios.post("/apii/notes/",data)
       console.log(user._id)
-      const res2=await axios.post(`/api/user/submision/${user._id}`,data)
+      const res2=await axios.post(`/apii/user/submision/${user._id}`,data)
       console.log(res2.data)
 
       setShowFormIndex(null);
@@ -58,6 +60,8 @@ const navigate=useNavigate();
 
     }catch(e){
       console.log(e)
+    }finally{
+      setloading(false)
     }
   }
 
@@ -80,7 +84,8 @@ const navigate=useNavigate();
 
   }
 
-  return (
+   if (loading)return <div>loading</div> 
+   else return(
     <div className="w-full h-full p-6 bg-[#1F1D1D] text-white">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Directory</h2>
@@ -137,17 +142,17 @@ const navigate=useNavigate();
                   className="w-full px-3 py-2 rounded bg-[#2d2d2d] text-white"
                 ></textarea>
 
-                <input
+                {/* <input
                   type="file"
                   accept="image/*"
                   className="w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
-                />
+                /> */}
 
-                <input
+                {/* <input
                   type="text"
                   placeholder="Image URL"
                   className="w-full px-3 py-2 rounded bg-[#2d2d2d] text-white"
-                />
+                /> */}
 
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2">

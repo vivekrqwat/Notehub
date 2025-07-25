@@ -26,7 +26,7 @@ export default function DirectoryForm({ handleClose }) {
     e.preventDefault();
     console.log(formData);
     try {
-      const res = await axios.post("/api/dir/", {
+      const res = await axios.post("/apii/dir/", {
         uid: user._id,
         ...formData,
       });

@@ -6,6 +6,7 @@ const userrouter=require("./Routes/Userroutes.js")
 const postrouter=require("./Routes/Postrout.js")
 const dirrouter=require("./Routes/DirRoute.js")
 const notes=require("./Routes/notesroute.js")
+const upload=require("./Routes/Upload.js")
 const cookieParser = require("cookie-parser");
 dotenv.config();
 const cors = require("cors");
@@ -16,10 +17,11 @@ app.use(cors({
 }));
 app.use(cookieParser())
 app.use(express.json());
-app.use('/api/user',userrouter);
-app.use('/api/post',postrouter);
-app.use('/api/dir',dirrouter);
-app.use('/api/notes',notes);
+app.use('/apii/user',userrouter);
+app.use('/apii/post',postrouter);
+app.use('/apii/dir',dirrouter);
+app.use('/apii/notes',notes);
+app.use('/apii/upcheck',upload)
 
 dbconnect()
 app.listen(8000,()=>{
