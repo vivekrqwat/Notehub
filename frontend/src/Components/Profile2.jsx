@@ -3,11 +3,18 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import GitGraph from "./GitGraph";
 import scientist from"../avatar/scientist.png"
+import { UserStore } from "../store/Userstroe";
 
 const Profile = () => {
   const { id } = useParams();
   const [userdata, setuserdata] = useState({});
   const [postdata, setpostdata] = useState([]);
+  const{user}=UserStore()
+  const[title,settitle]=useState({
+    league:"begginner",
+    title:"Note Novice"
+  })
+  const[score,setscore]=useState(0);
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -16,12 +23,52 @@ const Profile = () => {
         const res2 = await axios.get(`/apii/post/${id}`);
         setpostdata(res2.data);
         setuserdata(res.data);
+    
+     
+      
       } catch (e) {
         console.log(e);
       }
     };
     if (id) fetchdata();
   }, [id]);
+ 
+
+const getleauge=(n)=>{
+  if(n>=500&&n<=800){
+    console.log(n)
+settitle({ league: "Beginner", title: "Learning Sprout" });  }
+else if(n>800&&n<=1000){
+  settitle({ league: "Beginner", title: "Fresh Scriber" });
+}
+else if(n>1000&&n<=1200){
+   settitle({ league: "Amateur", title: "Rising Scholar" });
+}
+else if(n>1200&&n<=1500){
+   settitle({ league: "Amateur", title: "Knowledge Seeker" });
+}else if(n>1500&&n<=1800){
+   settitle({ league: "Amateur", title: "Syllabus Explorer" });
+}else if(n>1800&&n<=2500){
+   settitle({ league: " Professional Tier", title: "Note Master" });
+}
+else if(n>2500&&n<=3500){
+   settitle({ league: " Professional Tier", title: " Study Strategist" });
+}else if(n>3500){ settitle({ league: " Professional Tier", title: "Subject Sensei" });}
+else{
+  settitle({    league:"begginner",title:"Note Novice" })
+}
+
+
+}
+console.log(user.submission.length,"user")
+useEffect(()=>{
+
+     setscore(user.submission.length)
+  getleauge(user.submission.length)
+},[])
+// getleauge(700);
+
+
 
   return (
     <div className="min-h-screen bg-[#1e1e1e] text-white px-4 py-6">
@@ -29,7 +76,7 @@ const Profile = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6">
 
         {/* Left Profile Card */}
-<div className="bg-[#2a2a2a] w-full md:w-1/4 p-4 rounded-xl shadow-md min-h-[400px]">          <div className="text-lg font-bold mb-4 text-yellow-400">Profile</div>
+<div className="bg-[#2a2a2a] w-full md:w-1/4 p-4 rounded-xl shadow-md min-h-[400px] max-h-[650px] overflow-y-auto">
           <div className="flex flex-col items-center">
             <div className="w-24 h-24 ">
               <img src={scientist} alt="" className="bg-gray-600 rounded-full mb-3" />
@@ -41,8 +88,8 @@ const Profile = () => {
             {/* Large Trophy Icon and Info */}
             <div className="flex flex-col items-center mt-4 space-y-2">
               <span className="text-yellow-500 text-8xl">🏆</span>
-              <div className="text-white font-semibold text-lg">Beginner League</div>
-              <div className="text-gray-400 text-base">Score: 500</div>
+              <div className="text-white font-semibold text-lg">{title?.title}</div>
+              <div className="text-gray-400 text-base">Score:{score}</div>
             </div>
           </div>
         </div>

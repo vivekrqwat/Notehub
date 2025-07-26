@@ -132,25 +132,30 @@ router.put('/update/:id',async(req,res)=>{
     }
 })
 //submmisiion
-router.post("/submision/:id",authenticate,async(req,res)=>{
-    try{
-        const uid=req.params.id
-        const formatted = moment().format('YYYY-MM-DD');
-         console.log("successs",uid);
-        const updatedUser = await Usermodel.findByIdAndUpdate(
-              uid,
-              { $push: { submission: formatted } },
-              { new: true }
-            );
-           if (!updatedUser) return error(res, 404, { message: "User not found" });
-            return response(res,200,updatedUser);
+router.post("/submission/:id", authenticate, async (req, res) => {
+  try {
+    const uid = req.params.id;
+    const formatted = moment().format("YYYY-MM-DD");
 
-    }catch(e){
-         console.error("❌ Error updating submission:", e);
-            return error(res,500,{error:e,message:"updating error"})
+    console.log("✅ Submission attempt for:", formatted);
 
+    const updatedUser = await Usermodel.findByIdAndUpdate(
+      uid,
+      { $addToSet: { submission: formatted } }, // Ensures uniqueness
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return error(res, 404, { message: "User not found" });
     }
-})
+
+    return response(res, 200, updatedUser);
+  } catch (e) {
+    console.error("❌ Error updating submission:", e);
+    return error(res, 500, { error: e, message: "Updating error" });
+  }
+});
+
 
 
 module.exports=router

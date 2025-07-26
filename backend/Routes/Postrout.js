@@ -24,7 +24,7 @@ router.post('/',authenticate,async (req,res)=>{
        
       const updatedUser = await Usermodel.findByIdAndUpdate(
       req.body.uid,
-      { $push: { submission: formatted } },
+      { $addToSet: { submission: formatted } },
       { new: true }
     );
     // console.log(updatedUser,"updated")
@@ -32,7 +32,7 @@ router.post('/',authenticate,async (req,res)=>{
     
         
 
-        console.log("posted",formatted)
+        // console.log("posted",formatted)
         return response(res,200,savepost)
     }catch(e){
          return error(res,500,{error:e,message:"post_error"})
