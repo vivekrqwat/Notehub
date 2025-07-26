@@ -15,16 +15,14 @@ import Collaborative from './Components/Collaborative.jsx';
 import ProfilePage from './pages/profilepage.jsx';
 
 export default function App() {
-  const { user, checkAuth,isAuth } = UserStore();
+  const { user, checkAuth,isAuth,loading } = UserStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 console.log("user check",user)
 
-if(isAuth&&!user){
-  return <Loading></Loading>
-}
+if (loading) return <Loading />;
 
 
   return (
@@ -32,19 +30,22 @@ if(isAuth&&!user){
       <Routes>{
       user?
       
-        (<Route path="/" element={<Layout /> }>
+        (<>
+        <Route path="/" element={<Layout /> }>
           <Route index element={user ? <HomePage />: <Navigate to="/login" />} />
           <Route path="post" element={user ?<Discussion />: <Navigate to="/login" />} />
           <Route path="dir" element={<Directory />} />
           <Route path="notes" element={<Notes />} />
            <Route path="collab" element={<Collaborative></Collaborative>} />
-        </Route>)
+        </Route>
+          <Route path="/profile/:id"  element={user ? <ProfilePage></ProfilePage>: <Navigate to="/" />} ></Route>
+
+        </>)
       :<Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/" />}
         />}
     
-          <Route path="/profile/:id"  element={user ? <ProfilePage></ProfilePage>: <Navigate to="/" />} ></Route>
         <Route
           path="/signup"
           element={!user ? <Signup /> : <Navigate to="/" />}

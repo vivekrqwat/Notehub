@@ -6,19 +6,22 @@ export const UserStore = create((set) => ({
   user: null,
   isAutth:true,
   noteid:null,
+  postdata:null,
+  notedata:null,
+  loading:false,
   setnoteid:(id)=>{
     set({noteid:id})
   },
   checkAuth: async () => {
     try {
-
+      set({loading:true})
       const res = await axios.get('/apii/user/check');
-      set({ user: res.data });
+      set({ user: res.data ,loading:false});
     } catch {
       set({ user: null });
          set({isAutth:false});
     }finally{
-        set({isAutth:false});
+        set({isAutth:false,loading:false});
     }
   },
   signup:async(data)=>{
@@ -33,6 +36,35 @@ export const UserStore = create((set) => ({
   }
 
   },
+
+post:async(id)=>{
+    try{
+const res=await axios.get(`/apii/post/${id}`)
+console.log(id)
+set({postdata:res.data})
+    }catch(e){
+      console.log("post",e);
+     set({ postdata: null });
+
+    }
+},
+notes:async(id)=>{
+  try{
+    const res=await axios.get(`/apii/dir/${id}`)
+    set({notedata:res.data})
+    console.log("notestore",res.data)
+  }
+  catch(e){
+    console.log("post",e);
+    set({notedata:null})
+  }
+},
+
+
+
+
+
+
     login:async(data)=>{
      try{
    const res=await axios.post('/apii/user/login',data)

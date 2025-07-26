@@ -8,8 +8,10 @@ import { UserStore } from "../store/Userstroe";
 const Profile = () => {
   const { id } = useParams();
   const [userdata, setuserdata] = useState({});
-  const [postdata, setpostdata] = useState([]);
-  const{user}=UserStore()
+  // const [postdata, setpostdata] = useState([]);
+  const{user,post,postdata,notes,notedata}=UserStore()
+  const[listdata,setlistdata]=useState();
+   const[listname,setlistname]=useState("post");
   const[title,settitle]=useState({
     league:"begginner",
     title:"Note Novice"
@@ -19,9 +21,15 @@ const Profile = () => {
   useEffect(() => {
     const fetchdata = async () => {
       try {
+        
         const res = await axios.get(`/apii/user/${id}`);
-        const res2 = await axios.get(`/apii/post/${id}`);
-        setpostdata(res2.data);
+        console.log(id)
+        notes(id)
+        post(id)
+        console.log(id)
+
+        // const res2 = await axios.get(`/apii/post/${id}`);
+        // setpostdata(res2.data);
         setuserdata(res.data);
     
      
@@ -34,6 +42,25 @@ const Profile = () => {
   }, [id]);
  
 
+// listdata
+
+const listtransfer=()=>{
+  console.log("listining",listname)
+  if(listname=='posts'){
+    setlistdata(postdata)
+  }else if(listname=='notes') {
+    setlistdata(notedata)
+  }
+  console.log(notedata)
+}
+useEffect(()=>{
+  listtransfer();
+
+},[listname])
+
+
+
+//leauge data
 const getleauge=(n)=>{
   if(n>=500&&n<=800){
     console.log(n)
@@ -106,15 +133,15 @@ useEffect(()=>{
           {/* Submission/POST/Progress Tabs */}
           <div className="bg-[#2a2a2a] rounded-xl shadow-md p-4">
             <div className="flex flex-wrap gap-4 mb-4">
-              <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md">Submission</button>
-              <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md">POSTs</button>
+              <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md" onClick={()=>setlistname('notes')}>Submission</button>
+              <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md" onClick={()=>setlistname('posts')}>POSTs</button>
               <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md">Progress</button>
             </div>
             <div className="space-y-3 max-h-[200px] overflow-y-auto">
-              {postdata?.map((item, idx) => (
+              {listdata?.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-3 bg-[#1e1e1e] px-4 py-2 rounded-md">
                   <div className="w-4 h-4 rounded-full bg-green-400"></div>
-                  <span className="break-words">{item.desc}</span>
+                  <span className="break-words">{listname=="posts"?item.desc:item.Dirname}</span>
                 </div>
               ))}
             </div>

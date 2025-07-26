@@ -10,7 +10,7 @@ export default function Directory() {
   const [showFormIndex, setShowFormIndex] = useState(null);
   const [dirdata, setdirdata] = useState([{}]);
   const [notes, setnotes] = useState([]);
-const{user,setnoteid}=UserStore()
+const{user}=UserStore()
 const[loading,setloading]=useState(false)
 const navigate=useNavigate();
   useEffect(() => {
@@ -65,6 +65,15 @@ const navigate=useNavigate();
     }
   }
 
+
+  useEffect(() => {
+    // Clear noteid when this page is mounted
+    localStorage.removeItem("noteid");
+  }, []);
+
+
+
+
   const getGradeColorClass = (grade) => {
     switch (grade) {
       case "green":
@@ -79,7 +88,8 @@ const navigate=useNavigate();
   };
   const gotoNotes=(id,e)=>{
     e.preventDefault();
-    setnoteid(id);
+   
+      localStorage.setItem("noteid", id);
     navigate("/notes")
 
   }

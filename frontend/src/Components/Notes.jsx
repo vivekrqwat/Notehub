@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { UserStore } from '../store/Userstroe';
 import axios from 'axios';
 import Upload from '../utils/Upload';
 
 export default function Notes() {
+  const [noteid, setNoteid] = useState(localStorage.getItem("noteid")); // ✅ read noteid from localStorage
+  const [notedata, setNotedata] = useState();
+  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+
   const [formData, setFormData] = useState({
     heading: '',
     desc: '',
@@ -13,22 +16,19 @@ export default function Notes() {
     imageUrl: ''
   });
 
-  const [notedata, setnotedata] = useState();
-  const [loading, setloading] = useState(false);
-  const { noteid, setnoteid } = UserStore();
-
-  const fetchnote = async () => {
+  const fetchNote = async () => {
+    if (!noteid) return;
     try {
       const res = await axios.get(`/apii/notes/all/${noteid}`);
-      setnotedata(res.data);
-    } catch (e) {
-      console.log(e);
+      setNotedata(res.data);
+    } catch (err) {
+      console.log("Error fetching notes:", err);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setloading(true);
+    setLoading(true);
     try {
       let Img = await Upload(formData.image);
 
@@ -44,15 +44,14 @@ export default function Notes() {
       };
 
       const res = await axios.put(`/apii/notes/${noteid}`, data);
-      setnotedata(res.data);
-
+      setNotedata(res.data);
       setFormData({ heading: '', desc: '', grade: '', image: null, imageUrl: '' });
       setShowForm(false);
-      fetchnote();
+      fetchNote();
     } catch (err) {
       console.error("Error saving note", err);
     } finally {
-      setloading(false);
+      setLoading(false);
     }
   };
 
@@ -65,16 +64,20 @@ export default function Notes() {
     }
   };
 
+  // Sync noteid to localStorage if it's set
   useEffect(() => {
-    fetchnote();
-  }, []);
+    if (noteid) {
+      localStorage.setItem("noteid", noteid);
+      fetchNote();
+    }
+  }, [noteid]);
 
-  if (loading) return <div>LOADING</div>;
+  if (!noteid) return <div>No note selected</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen bg-[#1F1D1D] text-white p-4 sm:p-6">
       <div className="max-w-4xl mx-auto w-full">
-        {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl sm:text-2xl font-bold">{notedata?.heading}</h1>
           <button
@@ -85,7 +88,6 @@ export default function Notes() {
           </button>
         </div>
 
-        {/* Form */}
         {showForm && (
           <form
             className="bg-[#2a2a2a] p-4 rounded-xl mb-6 w-full sm:min-w-[55%]"
@@ -126,7 +128,6 @@ export default function Notes() {
               {['yellow', 'green', 'red'].map((color) => (
                 <div
                   key={color}
-                  name="grade"
                   className={`w-6 h-6 rounded-md cursor-pointer ${getGradeColorClass(color)}`}
                   onClick={() => setFormData({ ...formData, grade: color })}
                 />
@@ -141,7 +142,6 @@ export default function Notes() {
           </form>
         )}
 
-        {/* Scrollable Notes List */}
         <div className="space-y-4 overflow-y-auto max-h-[80vh] pr-2">
           {notedata?.content?.map((note, idx) => (
             <div key={idx} className="bg-[#2a2a2a] p-4 rounded-xl w-full">
