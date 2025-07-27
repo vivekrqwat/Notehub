@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server:{
     proxy:{'/apii':{
-      target:'http://localhost:8000',
+      target:'https://notehub-1-v9ea.onrender.com',
       changeOrigin: true,
         secure: false,
 
