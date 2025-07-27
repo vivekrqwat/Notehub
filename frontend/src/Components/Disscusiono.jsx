@@ -32,13 +32,16 @@ export default function Discussion() {
       console.log("url", imgUrl);
 
       const postdata = {
+        uid:"",
         username: user.username,
         email: user?.email,
         desc: message,
         img: imgUrl,
       };
 
-      await axios.post(`${API}/apii/post/`, postdata);
+      await axios.post(`${API}/apii/post/`, postdata,{
+        withCredentials: true
+      });
       setMessage("");
       setImage(null);
       fetchPosts();
