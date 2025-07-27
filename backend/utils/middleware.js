@@ -1,46 +1,47 @@
-const jwt=require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { error } = require('./Error');
 const Usermodel = require('../models/User');
 
- async function assignwebtoken(data,res){
-    // console.log(process.env.JT)
-    const token=jwt.sign(data,process.env.JT,{
-         expiresIn: "7d",
-    })
+async function assignwebtoken(data, res) {
+  if (!process.env.JT) {
+    throw new Error('JWT secret (process.env.JT) is not defined');
+  }
+  const token = jwt.sign(data, process.env.JT, {
+    expiresIn: "7d",
+  });
 
-
-
-res.cookie("jwt", token, {
-
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  httpOnly: true,
-  secure: true,         // Needed for HTTPS (Render)
-  sameSite: "None",     // Allow cross-origin cookies
-});
-    return token;
-
-
+  // Set cookie options based on environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  res.cookie("jwt", token, {
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: isProduction, // Only true in production (HTTPS)
+    sameSite: isProduction ? "None" : "Lax", // "None" for cross-site, "Lax" for local dev
+  });
+  return token;
 }
 
+const authenticate = async (req, res, next) => {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) return error(res, 401, { message: "Authentication token missing" });
 
-const authenticate=async (req,res,next)=>{
-    try{
-    const token=req.cookies.jwt
-    // console.log(token)
-    if(!token)return error(res,400,{message:"no token was given"})
+    if (!process.env.JT) {
+      throw new Error('JWT secret (process.env.JT) is not defined');
+    }
+    const decode = jwt.verify(token, process.env.JT);
+    if (!decode) return error(res, 401, { message: "Invalid token" });
 
-    const decode=jwt.verify(token,process.env.JT);
-    if(!decode)return error(res,400,{message:"no token was given"})
-    const{email,id}=decode;
-// console.log("decode",id)
-  const user = await Usermodel.findById(id).select("-password");
-  req.user=user;
-  console.log("user",user.id)
-  next();
+    const { id } = decode;
+    const user = await Usermodel.findById(id).select("-password");
+    if (!user) return error(res, 401, { message: "User not found" });
 
-    }catch(e){
-        console.log(e);
-        return error(res,400,{error:e,message:"error in authenticate"})}
-}
+    req.user = user;
+    next();
+  } catch (e) {
+    console.error("Authentication error:", e.message);
+    return error(res, 401, { message: "Authentication failed" });
+  }
+};
 
-module.exports={assignwebtoken,authenticate}
+module.exports = { assignwebtoken, authenticate };

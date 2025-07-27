@@ -21,7 +21,7 @@ export default function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
-console.log("user check",user)
+// console.log("user check",user)
 
 if (loading) return <Loading />;
 

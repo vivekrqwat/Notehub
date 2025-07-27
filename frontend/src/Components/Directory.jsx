@@ -38,11 +38,12 @@ export default function Directory() {
 
   useEffect(() => {
     const fetchDirData = async () => {
-      console.log(user)
+    
       try {
         const resdata = await axios.get(`${API}/apii/dir/${user._id}`, {
           withCredentials: true,
         });
+        console.log(resdata.data)
         setdirdata(resdata.data);
       } catch (e) {
         console.log(e);
@@ -121,7 +122,7 @@ export default function Directory() {
       </div>
 
       <div className="space-y-4 min-w-[240px]">
-        {dirdata.map((dir, index) => (
+        {dirdata?.map((dir, index) => (
           <div key={dir._id || index} className="bg-[#2C2C2C] rounded-lg p-5 shadow-md ">
             <div className="flex justify-between items-start">
               <div className="flex gap-3 items-center">
