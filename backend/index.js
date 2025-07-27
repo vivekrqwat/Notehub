@@ -12,7 +12,7 @@ dotenv.config();
 const cors = require("cors");
 
 app.use(cors({
-  origin:  ["http://localhost:5173", "https://frontend-4o7e.onrender.com"],
+  origin: process.env.FRONTEND_URL,
   credentials: true // if using cookies
 }));
 app.use(cookieParser())
