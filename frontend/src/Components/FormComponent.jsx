@@ -30,16 +30,17 @@ export default function DirectoryForm({ handleClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("form data",formData);
-    console.log("Sending to backend:", {
-  uid: user._id,
-  ...formData,
-});
+    
    
     try {
       const res = await axios.post(`${API}/apii/dir`, {
         uid: user._id,
         ...formData,
-      });
+      },
+      {
+  withCredentials: true
+}
+    );
       console.log(res.data);
       navigate("/dir");
     } catch (err) {
