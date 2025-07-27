@@ -14,7 +14,7 @@ const Profile = () => {
   const [userdata, setuserdata] = useState({});
   const { user, post, postdata, notes, notedata } = UserStore();
   const [listdata, setlistdata] = useState();
-  const [listname, setlistname] = useState("post");
+  const [listname, setlistname] = useState("posts");
   const [title, settitle] = useState({
     league: "begginner",
     title: "Note Novice",
@@ -42,7 +42,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchdata = async () => {
       try {
-        const res = await axios.get(`${API}/apii/user/${id}`);
+        const res = await axios.get(`${API}/apii/user/${id}`,{withCredentials:true});
         console.log(id);
         notes(id);
         post(id);

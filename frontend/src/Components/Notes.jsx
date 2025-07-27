@@ -54,7 +54,7 @@ export default function Notes() {
       const data = {
         content: [...(notedata?.content || []), noteToAdd],
       };
-      const res = await axios.put(`${API}/apii/notes/${noteid}`, data);
+      const res = await axios.put(`${API}/apii/notes/${noteid}`, data,{withCredentials:true});
       setNotedata(res.data);
       setFormData({ heading: '', desc: '', grade: '', image: null, imageUrl: '' });
       setShowForm(false);

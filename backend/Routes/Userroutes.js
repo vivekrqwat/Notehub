@@ -156,14 +156,20 @@ console.log("hello")
   }
 });
 //logout
-router.post("/logout",async(req,res)=>{
-    try{
-           res.cookie("jwt", "", { maxAge: 0 }); 
-               res.status(200).json({ message: "Logged out successfully" });   
-    }catch(e){
-        return error(res, 500, { error: e, message: "loging out error" });
-    }
-})
+router.post("/logout", async (req, res) => {
+  try {
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie("jwt", "", {
+      maxAge: 0,
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+    });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (e) {
+    return error(res, 500, { error: e, message: "loging out error" });
+  }
+});
 
 
 

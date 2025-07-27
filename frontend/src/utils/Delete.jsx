@@ -13,7 +13,7 @@ export default async function Delete(name, id) {
     }
 
     if (name === "notes") {
-      await axios.delete(`${API}/apii/notes/dirdelete/${id}`);
+      await axios.delete(`${API}/apii/notes/dirdelete/${id}`,{withCredentials:true});
       console.log("note deleted", id);
       return;
     }
