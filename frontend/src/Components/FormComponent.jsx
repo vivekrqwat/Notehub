@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { UserStore } from "../store/Userstroe";
+import { useNavigate } from "react-router-dom";
 
 export default function DirectoryForm({ handleClose }) {
   const initialData = {
@@ -12,6 +13,7 @@ export default function DirectoryForm({ handleClose }) {
 
   const { user } = UserStore();
   const [formData, setFormData] = useState(initialData);
+  const navigate=useNavigate()
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +33,8 @@ export default function DirectoryForm({ handleClose }) {
         ...formData,
       });
       console.log(res.data);
+      console.log('navigate');
+      navigate("/dir")
     } catch (err) {
       console.log("dir ", err);
     }

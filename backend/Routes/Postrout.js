@@ -92,7 +92,7 @@ router.put('/update/:id',authenticate,async(req,res)=>{
 
     }
 })
-//delete
+//delete all post
 router.delete('/update/:id',async(req,res)=>{
        if (req.user._id.toString() !== id) {
         return error(res, 400, { message: "Not a valid user" });
@@ -101,6 +101,20 @@ router.delete('/update/:id',async(req,res)=>{
   
     try{
        const deletepost=await Postmodel.findByOneAndDelete({uid:id})
+        if (!deletepost) return error(res,400,"no updates")
+       return response(res,200,deletepost)
+
+
+    }catch(e){
+    return error(res,500,{error:e,message:"delete error"})
+
+    }
+})
+//delet specific post
+router.delete('/postid/:id',async(req,res)=>{
+   const id=req.params.id;
+    try{
+       const deletepost=await Postmodel.findByIdAndDelete(id)
         if (!deletepost) return error(res,400,"no updates")
        return response(res,200,deletepost)
 

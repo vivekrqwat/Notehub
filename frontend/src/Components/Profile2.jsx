@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import GitGraph from "./GitGraph";
 import scientist from"../avatar/scientist.png"
 import { UserStore } from "../store/Userstroe";
+import { FaTrophy, FaEdit, FaTrash } from "react-icons/fa";
+import Delete from "../utils/Delete";
 
 const Profile = () => {
   const { id } = useParams();
@@ -16,7 +18,33 @@ const Profile = () => {
     league:"begginner",
     title:"Note Novice"
   })
+  
   const[score,setscore]=useState(0);
+  const delepost=async(id)=>{
+  try{
+    console.log("deleted")
+    console.log(listname)
+    if(listname=='posts'){
+    // const res=await axios.delete(`/apii/post/postid/${id}`);
+    
+    await Delete('post',id)
+    
+      setlistdata((prev) => prev.filter((item) => item._id !== id));
+    }
+    else if (listname=='notes'){
+        // const res=await axios.delete(`/apii/dir/${id}`);
+        // const notesdir= await axios.delete(`/apii/notes/dirdelete/${id}`)
+        await Delete('dir',id)
+        await Delete('notes',id)
+        
+        setlistdata((prev)=>prev.filter((item)=>item._id!=id))
+        console.log("dir_deleted")
+    }
+  }catch(e){
+    console.log("del",e);
+  }
+
+}
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -26,7 +54,7 @@ const Profile = () => {
         console.log(id)
         notes(id)
         post(id)
-        console.log(id)
+        // console.log(idx``)
 
         // const res2 = await axios.get(`/apii/post/${id}`);
         // setpostdata(res2.data);
@@ -57,6 +85,8 @@ useEffect(()=>{
   listtransfer();
 
 },[listname])
+//
+
 
 
 
@@ -133,15 +163,28 @@ useEffect(()=>{
           {/* Submission/POST/Progress Tabs */}
           <div className="bg-[#2a2a2a] rounded-xl shadow-md p-4">
             <div className="flex flex-wrap gap-4 mb-4">
-              <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md" onClick={()=>setlistname('notes')}>Submission</button>
+              <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md" onClick={()=>setlistname('notes')}>Directories</button>
               <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md" onClick={()=>setlistname('posts')}>POSTs</button>
-              <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md">Progress</button>
+              {/* <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md">Progress</button> */}
             </div>
             <div className="space-y-3 max-h-[200px] overflow-y-auto">
               {listdata?.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-[#1e1e1e] px-4 py-2 rounded-md">
-                  <div className="w-4 h-4 rounded-full bg-green-400"></div>
-                  <span className="break-words">{listname=="posts"?item.desc:item.Dirname}</span>
+                 <div
+                  key={idx}
+                  className="flex justify-between items-center bg-[#1e1e1e] px-4 py-2 rounded-md"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-green-400" />
+                    <span className="break-words">{item.desc}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button className="text-blue-400 hover:text-blue-500">
+                      <FaEdit size={18} />
+                    </button>
+                    <button className="text-red-400 hover:text-red-500" onClick={()=>delepost(item._id)}>
+                      <FaTrash size={18} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

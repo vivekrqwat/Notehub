@@ -123,6 +123,41 @@ router.delete("/:id",authenticate,async(req,res)=>{
         return error(res,404,{error:e,message:"on Deletion dir"})
     }
 })
+//deletion of notes by dir id 
+router.delete("/dirdelete/:dirid",async(req,res)=>{
+    const {dirid}=req.params;
+    try{
+        console.log("deleted notes",dirid)
+        const deleted=await Notesmodel.deleteMany({dirid})
+         res.status(200).json({
+      message: `${deleted.deletedCount} note(s) deleted with dirid ${dirid}`,
+    });
+    }
+    catch(e){
+           console.log(e);
+        return error(res,404,{error:e,message:"on Deletion dir"})
+    }
+})
+//deletion content of  notes
+router.delete("/Notes/:noteId/content/:contentId",async(req,res)=>{
+   const { noteId, contentId } = req.params;
+console.log('notes content')
+  try {
+    const result = await Notesmodel.findByIdAndUpdate(
+      noteId,
+      { $pull: { content: { _id: contentId } } },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+
+    return res.status(200).json({ message: "Content removed", updatedNote: result });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+})
 
 
 

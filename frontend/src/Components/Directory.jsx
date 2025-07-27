@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FiChevronDown, FiPlus } from "react-icons/fi";
-import { FaArrowRight } from "react-icons/fa";
+import { FiChevronDown, FiPlus, FiTrash } from "react-icons/fi";
+import { FaArrowRight, FaTrash } from "react-icons/fa";
 import axios from "axios";
 import { UserStore } from "../store/Userstroe";
 import { useNavigate } from "react-router-dom";
+import Delete from "../utils/Delete";
 
 export default function Directory() {
   const [openDir, setOpenDir] = useState(null);
@@ -13,6 +14,32 @@ export default function Directory() {
 const{user}=UserStore()
 const[loading,setloading]=useState(false)
 const navigate=useNavigate();
+
+const Deldir=async(id)=>{
+  try{
+    await Delete('dir',id)
+    await Delete('notes',id)
+    setdirdata((prev)=>prev.filter((item)=>item._id!=id))
+
+  }catch(e){
+    console.log(e)
+  }
+
+}
+const Delnotes=async(id)=>{
+  try{
+    await Delete('noteid',id)
+    
+    setnotes((prev)=>prev.filter((item)=>item._id!=id))
+
+  }catch(e){
+    console.log(e)
+  }
+
+}
+
+
+
   useEffect(() => {
     const dirdata = async () => {
       try {
@@ -55,6 +82,8 @@ const navigate=useNavigate();
       console.log(res2.data)
 
       setShowFormIndex(null);
+     
+
 
 
 
@@ -123,9 +152,12 @@ const navigate=useNavigate();
                   onClick={() =>
                     setShowFormIndex(showFormIndex === index ? null : index)
                   }
-                >
-                  + Add
+                >   
+                  {showFormIndex!=null?"close":"+ Add"}
                 </button>
+                <button className="text-red-400 hover:text-red-500" onClick={()=>Deldir(dir._id)} >
+                  <FaTrash size={18} />
+                  </button>
                 <button className="p-1" onClick={() => getnotes(dir._id)}>
                   <FiChevronDown
                     className={`transition-transform ${
@@ -211,17 +243,23 @@ const navigate=useNavigate();
   <div className="mt-2 space-y-2 pl-6">
     {notes.map((note, noteIdx) => (
       <div
-      onClick={(e)=>gotoNotes(note._id,e)}
+   
         key={noteIdx}
         className="flex items-center hover:bg-[#3A3A3A] px-3 py-2 rounded-md cursor-pointer"
       >
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full" onClick={(e)=>gotoNotes(note._id,e)}>
           <div className="flex justify-between items-center">
             <span className="font-bold">{note.heading}</span>
-            <FaArrowRight className="text-xl rotate-90 text-white" />
+            
           </div>
           <span>{note.desc}</span>
         </div>
+        <div className="flex gap-5">
+             <button className="text-red-400 hover:text-red-500" onClick={()=>Delnotes(note._id)} >
+                  <FaTrash size={18} />
+                  </button>
+            <FaArrowRight className="text-xl rotate-90 text-white" />
+          </div>
       </div>
     ))}
   </div>
