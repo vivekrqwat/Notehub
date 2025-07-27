@@ -32,7 +32,7 @@ const res = await axios.get(`${API}/apii/user/check`, {
     try {
       const res = await axios.post(`${API}/apii/user/signup`, data,{withCredentials: true});
       set({ user: res.data });
-      console.log(res.data);
+      console.log("signup",res.data);
     } catch (e) {
       console.log(e);
       toast.error("Wrong credentials or password");

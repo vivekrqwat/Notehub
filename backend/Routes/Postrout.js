@@ -11,6 +11,7 @@ const moment=require("moment")
 
 router.post('/',authenticate,async (req,res)=>{
     const{email,username}=req.body
+    console.log(req.body,"post body")
     
     if(!req.user) return error(res,400,{message:"user not found"});
     req.body.uid=req.user._id.toString();

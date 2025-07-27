@@ -91,9 +91,9 @@ export default function Discussion() {
       )}
 
       {/* Bottom Input Box */}
-      <div className="bg-[#2A2A2A] mt-2 px-4 py-3 rounded-lg shadow-lg">
-        <div className="flex items-center gap-2">
-          <label className="cursor-pointer text-white bg-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-600">
+      <div className="bg-[#2A2A2A] mt-2 px-2 py-2 rounded-lg shadow-lg">
+        <div className="flex items-center gap-1">
+          <label className="cursor-pointer text-white bg-gray-700 px-2 py-1 rounded text-xs hover:bg-gray-600">
             📷
             <input
               type="file"
@@ -109,12 +109,12 @@ export default function Discussion() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="@type message"
-            className="flex-1 px-4 py-2 rounded-md border-none bg-[#F1F1F1] text-black placeholder:text-gray-500"
+            className="flex-1 px-2 py-1 rounded border-none bg-[#F1F1F1] text-black placeholder:text-gray-500 text-xs"
           />
 
           <button
             onClick={handleSend}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-xs"
           >
             Send
           </button>
