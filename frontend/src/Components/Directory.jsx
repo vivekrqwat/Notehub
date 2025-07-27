@@ -38,6 +38,7 @@ export default function Directory() {
 
   useEffect(() => {
     const fetchDirData = async () => {
+      console.log(user)
       try {
         const resdata = await axios.get(`${API}/apii/dir/${user._id}`, {
           withCredentials: true,
