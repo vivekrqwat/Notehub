@@ -4,12 +4,14 @@ import Upload from '../utils/Upload';
 import { FaTrash } from 'react-icons/fa';
 import Delete from '../utils/Delete';
 
+const API = import.meta.env.VITE_API_URL;
+
 export default function Notes() {
-  const [noteid, setNoteid] = useState(localStorage.getItem("noteid")); // ✅ read noteid from localStorage
+  const [noteid, setNoteid] = useState(localStorage.getItem("noteid"));
   const [notedata, setNotedata] = useState();
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const[contentdata,setcontentdata]=useState([]);
+  const [contentdata, setcontentdata] = useState([]);
   const [formData, setFormData] = useState({
     heading: '',
     desc: '',
@@ -18,24 +20,21 @@ export default function Notes() {
     imageUrl: ''
   });
 
-
-  //delnote
-  const delnotes=async(id)=>{
-    try{
-      await Delete("content",id);
-      setcontentdata((prv)=>prv.filter((item)=>item._id!=id[1]))
-      
-    }catch(e){
-      console.log(e)
+  const delnotes = async (id) => {
+    try {
+      await Delete("content", id);
+      setcontentdata((prv) => prv.filter((item) => item._id != id[1]));
+    } catch (e) {
+      console.log(e);
     }
-  }
+  };
 
   const fetchNote = async () => {
     if (!noteid) return;
     try {
-      const res = await axios.get(`/apii/notes/all/${noteid}`);
+      const res = await axios.get(`${API}/apii/notes/all/${noteid}`);
       setNotedata(res.data);
-      setcontentdata(res.data.content)
+      setcontentdata(res.data.content);
     } catch (err) {
       console.log("Error fetching notes:", err);
     }
@@ -46,21 +45,17 @@ export default function Notes() {
     setLoading(true);
     try {
       let Img = await Upload(formData.image);
-
       const noteToAdd = {
         heading: formData.heading,
         desc: formData.desc,
         grade: formData.grade,
         img: Img,
       };
-
       const data = {
         content: [...(notedata?.content || []), noteToAdd],
       };
-
-      const res = await axios.put(`/apii/notes/${noteid}`, data);
+      const res = await axios.put(`${API}/apii/notes/${noteid}`, data);
       setNotedata(res.data);
-    
       setFormData({ heading: '', desc: '', grade: '', image: null, imageUrl: '' });
       setShowForm(false);
       fetchNote();
@@ -80,7 +75,6 @@ export default function Notes() {
     }
   };
 
-  // Sync noteid to localStorage if it's set
   useEffect(() => {
     if (noteid) {
       localStorage.setItem("noteid", noteid);
@@ -90,7 +84,6 @@ export default function Notes() {
 
   if (!noteid) return <div>No note selected</div>;
   if (loading) return <div>Loading...</div>;
-  console.log(notedata?.content)
 
   return (
     <div className="min-h-screen bg-[#1F1D1D] text-white p-4 sm:p-6">
@@ -164,12 +157,12 @@ export default function Notes() {
             <div key={idx} className="bg-[#2a2a2a] p-4 rounded-xl w-full">
               <div className="flex items-center gap-2 mb-2 justify-between">
                 <div className="flex">
-                <div className={`w-4 h-4 rounded-md ${getGradeColorClass(note.grade)}`}></div>
-                <h2 className="font-bold capitalize">{note.heading}</h2>
+                  <div className={`w-4 h-4 rounded-md ${getGradeColorClass(note.grade)}`}></div>
+                  <h2 className="font-bold capitalize ml-2">{note.heading}</h2>
                 </div>
-                  <button className="text-red-400 hover:text-red-500" onClick={()=>delnotes([noteid,note._id])}>
-                     <FaTrash size={18} />
-                    </button>
+                <button className="text-red-400 hover:text-red-500" onClick={() => delnotes([noteid, note._id])}>
+                  <FaTrash size={18} />
+                </button>
               </div>
               <p className="text-sm mb-2 text-gray-200">{note.desc}</p>
               {note.img && (

@@ -4,16 +4,19 @@ import { IoMdClose } from "react-icons/io";
 import { UserStore } from "../store/Userstroe";
 import { useNavigate } from "react-router-dom";
 
+const API = import.meta.env.VITE_API_URL;
+
 export default function DirectoryForm({ handleClose }) {
   const initialData = {
     Dirname: "",
     desc: "",
     grade: "",
   };
+  console.log(API)
 
   const { user } = UserStore();
   const [formData, setFormData] = useState(initialData);
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,13 +31,12 @@ export default function DirectoryForm({ handleClose }) {
     e.preventDefault();
     console.log(formData);
     try {
-      const res = await axios.post("/apii/dir/", {
+      const res = await axios.post(`${API}/apii/dir`, {
         uid: user._id,
         ...formData,
       });
       console.log(res.data);
-      console.log('navigate');
-      navigate("/dir")
+      navigate("/dir");
     } catch (err) {
       console.log("dir ", err);
     }
@@ -49,7 +51,6 @@ export default function DirectoryForm({ handleClose }) {
 
   return (
     <div className="relative bg-[#2C2C2C] text-white max-w-md mx-auto mt-10 p-6 rounded-2xl shadow-md border border-gray-700">
-      {/* Cross Icon */}
       <button
         onClick={handleFormClose}
         className="absolute top-2 right-2 text-white hover:text-red-400"
@@ -98,39 +99,24 @@ export default function DirectoryForm({ handleClose }) {
         <div>
           <label className="block font-semibold mb-2">Choose grade</label>
           <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => handleGradeSelect("red")}
-              className={`px-3 py-1 rounded-full text-white text-sm ${
-                formData.grade === "red"
-                  ? "bg-red-600"
-                  : "bg-red-500 hover:bg-red-600"
-              }`}
-            >
-              Difficult
-            </button>
-            <button
-              type="button"
-              onClick={() => handleGradeSelect("yellow")}
-              className={`px-3 py-1 rounded-full text-white text-sm ${
-                formData.grade === "yellow"
-                  ? "bg-yellow-500"
-                  : "bg-yellow-400 hover:bg-yellow-500"
-              }`}
-            >
-              Medium
-            </button>
-            <button
-              type="button"
-              onClick={() => handleGradeSelect("green")}
-              className={`px-3 py-1 rounded-full text-white text-sm ${
-                formData.grade === "green"
-                  ? "bg-green-600"
-                  : "bg-green-500 hover:bg-green-600"
-              }`}
-            >
-              Easy
-            </button>
+            {["red", "yellow", "green"].map((grade) => (
+              <button
+                key={grade}
+                type="button"
+                onClick={() => handleGradeSelect(grade)}
+                className={`px-3 py-1 rounded-full text-white text-sm ${
+                  formData.grade === grade
+                    ? `bg-${grade}-600`
+                    : `bg-${grade}-500 hover:bg-${grade}-600`
+                }`}
+              >
+                {grade === "red"
+                  ? "Difficult"
+                  : grade === "yellow"
+                  ? "Medium"
+                  : "Easy"}
+              </button>
+            ))}
           </div>
         </div>
 

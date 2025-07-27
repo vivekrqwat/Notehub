@@ -61,7 +61,7 @@ router.put("/:id",authenticate,async(req,res)=>{
 })
 //delete
 router.delete("/:id",async(req,res)=>{
-    const {id}=req.params
+    const {id}=req.params.id
     try{
         const deletedir= await Directorymodel.findByIdAndDelete(id)
              return response(res,200,deletedir)

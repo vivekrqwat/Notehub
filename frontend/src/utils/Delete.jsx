@@ -1,44 +1,43 @@
 import axios from 'axios';
-import React from 'react'
 
-export default  async function Delete  (name,id) {
-    console.log("delete is called")
-    try{
-        if(name=="post"){
-    const res=await axios.delete(`/apii/post/postid/${id}`);
-    console.log("post deleted")
-    return;
-        }
-        if(name=="notes"){
-            await axios.delete(`/apii/notes/dirdelete/${id}`)
-        
-        console.log("note deleted",id)
-            return
+const API = import.meta.env.VITE_API_URL; // ✅ backend base URL
 
-        }
-        if(name=='dir'){
-            const res=await axios.delete(`/apii/dir/${id}`);
-             console.log("dir",id)
-             return
+export default async function Delete(name, id) {
+  console.log("delete is called");
 
-        }
-         if(name=='noteid'){
-            const res=await axios.delete(`/apii/notes/${id}`);
-             console.log("",id)
-             return
-
-        }
-        if(name=="content"){
-            console.log(id)
-             const res=await axios.delete(`/apii/notes/Notes/${id[0]}/content/${id[1]}`);
-             console.log("conetent",id)
-             return
-            
-        }
-        return;
-
-    }catch(e){
-        console.log("delete..erroro",e)
+  try {
+    if (name === "post") {
+      await axios.delete(`${API}/apii/post/postid/${id}`);
+      console.log("post deleted");
+      return;
     }
-  
+
+    if (name === "notes") {
+      await axios.delete(`${API}/apii/notes/dirdelete/${id}`);
+      console.log("note deleted", id);
+      return;
+    }
+
+    if (name === "dir") {
+      await axios.delete(`${API}/apii/dir/${id}`);
+      console.log("dir", id);
+      return;
+    }
+
+    if (name === "noteid") {
+      await axios.delete(`${API}/apii/notes/${id}`);
+      console.log("noteid", id);
+      return;
+    }
+
+    if (name === "content") {
+      console.log(id);
+      await axios.delete(`${API}/apii/notes/Notes/${id[0]}/content/${id[1]}`);
+      console.log("content", id);
+      return;
+    }
+
+  } catch (e) {
+    console.log("delete..error", e);
+  }
 }

@@ -1,11 +1,13 @@
 import axios from 'axios';
 
+const API = import.meta.env.VITE_API_URL; // <-- base backend URL
+
 export default async function Upload(image) {
   let imgUrl = "";
 
   if (image) {
     try {
-      const auth = await axios.get("/apii/upcheck/auth");
+      const auth = await axios.get(`${API}/apii/upcheck/auth`);
       const res = auth.data;
 
       const formData = new FormData();
@@ -22,7 +24,7 @@ export default async function Upload(image) {
         formData
       );
 
-      imgUrl = upload.data.url; // assign to outer-scoped variable
+      imgUrl = upload.data.url;
       console.log("Uploaded image URL:", imgUrl);
     } catch (err) {
       console.error("Image upload error:", err);

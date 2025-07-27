@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { FiChevronDown, FiPlus, FiTrash } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { FaArrowRight, FaTrash } from "react-icons/fa";
 import axios from "axios";
 import { UserStore } from "../store/Userstroe";
 import { useNavigate } from "react-router-dom";
 import Delete from "../utils/Delete";
 
-// ... (imports remain unchanged)
+const API = import.meta.env.VITE_API_URL;
 
 export default function Directory() {
   const [openDir, setOpenDir] = useState(null);
   const [showFormIndex, setShowFormIndex] = useState(null);
-  const [dirdata, setdirdata] = useState([{}]);
+  const [dirdata, setdirdata] = useState([]);
   const [notes, setnotes] = useState([]);
   const { user } = UserStore();
   const [loading, setloading] = useState(false);
@@ -37,24 +37,27 @@ export default function Directory() {
   };
 
   useEffect(() => {
-    const dirdata = async () => {
+    const fetchDirData = async () => {
       try {
-        const resdata = await axios.get(`/apii/dir/${user._id}`);
+        const resdata = await axios.get(`${API}/apii/dir/${user._id}`, {
+          withCredentials: true,
+        });
         setdirdata(resdata.data);
       } catch (e) {
         console.log(e);
       }
     };
-    dirdata();
+    fetchDirData();
     localStorage.removeItem("noteid");
   }, []);
 
   const getnotes = async (id) => {
     setOpenDir(openDir === id ? null : id);
     try {
-      const notesdata = await axios.get(`/apii/notes/${id}`);
+      const notesdata = await axios.get(`${API}/apii/notes/${id}`, {
+        withCredentials: true,
+      });
       setnotes(notesdata.data);
-      // setShowFormIndex(null);
     } catch (e) {
       console.log(e);
     }
@@ -70,10 +73,13 @@ export default function Directory() {
     };
     try {
       setloading(true);
-      const res = await axios.post("/apii/notes/", data);
-      await axios.post(`/apii/user/submission/${user._id}`);
-      // setShowFormIndex(null);
-      getnotes(id); // Refresh notes after add
+      await axios.post(`${API}/apii/notes/`, data, {
+        withCredentials: true,
+      });
+      await axios.post(`${API}/apii/user/submission/${user._id}`, {}, {
+        withCredentials: true,
+      });
+      getnotes(id);
     } catch (e) {
       console.log(e);
     } finally {
@@ -111,30 +117,23 @@ export default function Directory() {
     <div className="w-full h-full px-3 sm:px-6 py-4 bg-[#1F1D1D] text-white overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">📁 Your Directories</h2>
-        {/* <button className="bg-green-600 hover:bg-green-700 p-2 rounded-md">
-          <FiPlus className="text-white text-lg" />
-        </button> */}
       </div>
 
       <div className="space-y-4 min-w-[240px]">
         {dirdata.map((dir, index) => (
           <div key={dir._id || index} className="bg-[#2C2C2C] rounded-lg p-5 shadow-md ">
-            {/* Header */}
             <div className="flex justify-between items-start">
               <div className="flex gap-3 items-center">
                 <div className={`w-4 h-4 rounded ${getGradeColorClass(dir.grade)}`} />
                 <div>
                   <p className="text-xl font-semibold">{dir.Dirname}</p>
-                  <p className="text-sm text-gray-400">{dir.desc}</p> 
+                  <p className="text-sm text-gray-400">{dir.desc}</p>
                 </div>
               </div>
-             <div className="flex gap-2 sm:gap-5 items-center">
-
+              <div className="flex gap-2 sm:gap-5 items-center">
                 <button
-  className="text-xs sm:text-sm bg-blue-700 hover:bg-blue-800 px-2 sm:px-3 py-1 rounded-md"
-                  onClick={() =>
-                    setShowFormIndex(showFormIndex === index ? null : index)
-                  }
+                  className="text-xs sm:text-sm bg-blue-700 hover:bg-blue-800 px-2 sm:px-3 py-1 rounded-md"
+                  onClick={() => setShowFormIndex(showFormIndex === index ? null : index)}
                 >
                   {showFormIndex === index ? "Close" : "+ Add Note"}
                 </button>
@@ -151,7 +150,6 @@ export default function Directory() {
               </div>
             </div>
 
-            {/* Add Note Form */}
             {showFormIndex === index && (
               <form
                 onSubmit={(e) => setNotes(dir._id, e)}
@@ -186,45 +184,37 @@ export default function Directory() {
               </form>
             )}
 
-            {/* Notes */}
             {openDir === dir._id && notes.length > 0 && (
               <div className="mt-4 space-y-3">
-               {notes.map((note, noteIdx) => (
-  <div
-    key={noteIdx}
-    className="flex items-start bg-[#3A3A3A] p-3 rounded-md hover:bg-[#444] transition-all cursor-pointer"
-  >
-    {/* Grade box on the left */}
-    <div className="mr-4 mt-1">
-      <span
-        className={`w-3 h-3 rounded block ${getGradeColorClass(note.grade)}`}
-      ></span>
-    </div>
+                {notes.map((note, noteIdx) => (
+                  <div
+                    key={noteIdx}
+                    className="flex items-start bg-[#3A3A3A] p-3 rounded-md hover:bg-[#444] transition-all cursor-pointer"
+                  >
+                    <div className="mr-4 mt-1">
+                      <span
+                        className={`w-3 h-3 rounded block ${getGradeColorClass(note.grade)}`}
+                      ></span>
+                    </div>
 
-    {/* Note content */}
-    <div
-      className="flex flex-col w-full"
-      onClick={(e) => gotoNotes(note._id, e)}
-    >
-      <div className="flex justify-between items-center mb-1">
-        <span className="font-bold text-sm sm:text-base text-white">{note.heading}</span>
-      </div>
-      <p className="text-gray-400 text-xs sm:text-sm">{note.desc}</p>
-    </div>
+                    <div className="flex flex-col w-full" onClick={(e) => gotoNotes(note._id, e)}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-sm sm:text-base text-white">{note.heading}</span>
+                      </div>
+                      <p className="text-gray-400 text-xs sm:text-sm">{note.desc}</p>
+                    </div>
 
-    {/* Actions */}
-    <div className="flex gap-3 items-center ml-4">
-      <button
-        className="text-red-400 hover:text-red-500"
-        onClick={() => Delnotes(note._id)}
-      >
-        <FaTrash size={16} />
-      </button>
-      <FaArrowRight className="text-lg rotate-90" />
-    </div>
-  </div>
-))}
-
+                    <div className="flex gap-3 items-center ml-4">
+                      <button
+                        className="text-red-400 hover:text-red-500"
+                        onClick={() => Delnotes(note._id)}
+                      >
+                        <FaTrash size={16} />
+                      </button>
+                      <FaArrowRight className="text-lg rotate-90" />
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -233,4 +223,3 @@ export default function Directory() {
     </div>
   );
 }
-

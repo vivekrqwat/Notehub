@@ -1,95 +1,91 @@
-  // store/UserStore.jsx
-  import axios from 'axios';
-  import { toast } from 'react-toastify';
-  import { create } from 'zustand';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { create } from 'zustand';
 
-  export const UserStore = create((set) => ({
-    user: null,
-    isAutth:true,
-    noteid:null,
-    postdata:null,
-    notedata:null,
-    loading:false,
-    setnoteid:(id)=>{
-      set({noteid:id})
-    },
-    checkAuth: async () => {
-      try {
-        set({loading:true})
-        const res = await axios.get('/apii/user/check');
-        set({ user: res.data ,loading:false});
-      } catch {
-        set({ user: null });
-          set({isAutth:false});
-      }finally{
-          set({isAutth:false,loading:false});
-      }
-    },
-    signup:async(data)=>{
-      try{
-    const res=await axios.post('/apii/user/signup',data)
-    set({user:res.data})
-      console.log(res.data)
+const API = import.meta.env.VITE_API_URL; // ✅ Base URL from .env
 
+export const UserStore = create((set) => ({
+  user: null,
+  isAutth: true,
+  noteid: null,
+  postdata: null,
+  notedata: null,
+  loading: false,
+
+  setnoteid: (id) => {
+    set({ noteid: id });
+  },
+
+  checkAuth: async () => {
+    try {
+      set({ loading: true });
+const res = await axios.get(`${API}/apii/user/check`, {
+  withCredentials: true,
+});
+      set({ user: res.data, loading: false });
+    } catch {
+      set({ user: null, isAutth: false, loading: false });
     }
-    catch(e){
+  },
+
+  signup: async (data) => {
+    try {
+      const res = await axios.post(`${API}/apii/user/signup`, data);
+      set({ user: res.data });
+      console.log(res.data);
+    } catch (e) {
       console.log(e);
-       toast.error("wrong credential or password")
+      toast.error("Wrong credentials or password");
       set({ user: null });
     }
+  },
 
-    },
+  login: async (data) => {
+    try {
+      console.log(API)
+      const res = await axios.post(`${API}/apii/user/login`, data,{
+          withCredentials: true,
+      });
+      set({ user: res.data });
+      console.log(res.data);
+    } catch (e) {
+      console.log("error", e);
+      toast.error("Wrong credentials or password");
+      set({ user: null });
+    }
+  },
 
-  post:async(id)=>{
-      try{
-  const res=await axios.get(`/apii/post/${id}`)
-  console.log(id)
-  set({postdata:res.data})
-      }catch(e){
-        console.log("post",e);
+  logout: async () => {
+    try {
+const res = await axios.post(`${API}/apii/user/logout`, null, {
+  withCredentials: true,
+});
+      set({ user: null });
+      console.log(res.data, "logout");
+    } catch (e) {
+      console.log(e);
+    }
+  },
+
+  post: async (id) => {
+    try {
+      const res = await axios.get(`${API}/apii/post/${id}`);
+      console.log(id);
+      set({ postdata: res.data });
+    } catch (e) {
+      console.log("post error", e);
       set({ postdata: null });
-
-      }
-  },
-  notes:async(id)=>{
-    try{
-      const res=await axios.get(`/apii/dir/${id}`)
-      set({notedata:res.data})
-      console.log("notestore",res.data)
-    }
-    catch(e){
-      console.log("post",e);
-      set({notedata:null})
     }
   },
 
-
-
-
-
-
-      login:async(data)=>{
-      try{
-    const res=await axios.post('/apii/user/login',data)
-    set({user:res.data})
-      console.log(res.data)
+  notes: async (id) => {
+    try {
+      const res = await axios.get(`${API}/apii/dir/${id}`);
+      set({ notedata: res.data });
+      console.log("notestore", res.data);
+    } catch (e) {
+      console.log("notes error", e);
+      set({ notedata: null });
     }
-    catch(e){
-      console.log("eror");
-        toast.error("wrong credential or password")
-      set({ user: null });
-    }
-
-    },
-    logout:async()=>{
-      try{
-        const res=await axios.post("/apii/user/logout");
-        set({user:null})
-        console.log(res.data,"logout")
-      }catch(e){
-        console.log(e)
-      }
-
-    }
-
-  }));
+  },
+}));
