@@ -1,10 +1,11 @@
 import axios from "axios";
 import React from "react";
 import { UserStore } from "../store/Userstroe";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const {signup,login,user}=UserStore()
-
+  const navigate=useNavigate()
 const signupdata=(e)=>{
       e.preventDefault();
   const formdata={
@@ -68,6 +69,12 @@ const signupdata=(e)=>{
             >
               Sign in
             </button>
+          <p
+              onClick={() => navigate("/login")}
+              className="text-sm text-blue-600 cursor-pointer hover:underline w-full justify-center"
+            >
+              I have an account
+            </p>
           </form>
         </div>
 

@@ -27,7 +27,8 @@ const noteSchema= new mongoose.Schema({
     img:{
         type:String,
         default:""
-    }
+    },
+    grade: { type: String, default: "" }
       
 
 

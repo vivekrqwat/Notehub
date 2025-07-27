@@ -13,6 +13,7 @@ import Login from './pages/login';
 import Loading from './pages/Loading.jsx';
 import Collaborative from './Components/Collaborative.jsx';
 import ProfilePage from './pages/profilepage.jsx';
+  import { ToastContainer } from 'react-toastify';
 
 export default function App() {
   const { user, checkAuth,isAuth,loading } = UserStore();
@@ -27,6 +28,7 @@ if (loading) return <Loading />;
 
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>{
       user?
       
@@ -53,6 +55,10 @@ if (loading) return <Loading />;
         <Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/" />}
+        />
+         <Route
+          path="*"
+          element={!user ? <Signup /> : <Navigate to="/" />}
         />
       </Routes>
     </BrowserRouter>

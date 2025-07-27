@@ -12,7 +12,7 @@ export default function ProfileRight() {
     }
 
   return (
-    <div className="w-64 bg-[#1C1C1C] text-white h-full p-4 space-y-6" onClick={()=>Toprofile()}>
+<div className="hidden lg:block w-64 bg-[#1C1C1C] text-white h-full p-4 space-y-6" onClick={() => Toprofile()}>
       {/* Profile */}
       <div className="bg-[#2B2B2B] rounded-lg p-4 text-center space-y-2">
         <div className="w-16 h-16 mx-auto rounded-full bg-gray-600" />

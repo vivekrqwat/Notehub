@@ -167,16 +167,18 @@ useEffect(()=>{
               <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md" onClick={()=>setlistname('posts')}>POSTs</button>
               {/* <button className="px-4 py-2 bg-[#1e1e1e] text-white rounded-md">Progress</button> */}
             </div>
-            <div className="space-y-3 max-h-[200px] overflow-y-auto">
+            <div className="space-y-3 max-h-[500px] overflow-y-auto">
               {listdata?.map((item, idx) => (
                  <div
                   key={idx}
-                  className="flex justify-between items-center bg-[#1e1e1e] px-4 py-2 rounded-md"
-                >
+                  className="flex-col  bg-[#1e1e1e] ">
+               <div className="flex justify-between items-center bg-[#1e1e1e] px-4 py-2 rounded-md">
                   <div className="flex items-center gap-3">
+                   
                     <div className="w-4 h-4 rounded-full bg-green-400" />
-                    <span className="break-words">{item.desc}</span>
+                    <span className="break-words">{listname=="posts"?item.desc:item.Dirname}</span>
                   </div>
+
                   <div className="flex items-center gap-4">
                     <button className="text-blue-400 hover:text-blue-500">
                       <FaEdit size={18} />
@@ -185,6 +187,9 @@ useEffect(()=>{
                       <FaTrash size={18} />
                     </button>
                   </div>
+                  </div>
+                                    <span>{listname=="posts"?<img  className="w-[80%] max-h-[400px] mx-auto mt-2 rounded-md object-contain" src={`${item.img}`}></img>:""}</span>
+
                 </div>
               ))}
             </div>

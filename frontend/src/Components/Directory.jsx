@@ -6,102 +6,80 @@ import { UserStore } from "../store/Userstroe";
 import { useNavigate } from "react-router-dom";
 import Delete from "../utils/Delete";
 
+// ... (imports remain unchanged)
+
 export default function Directory() {
   const [openDir, setOpenDir] = useState(null);
   const [showFormIndex, setShowFormIndex] = useState(null);
   const [dirdata, setdirdata] = useState([{}]);
   const [notes, setnotes] = useState([]);
-const{user}=UserStore()
-const[loading,setloading]=useState(false)
-const navigate=useNavigate();
+  const { user } = UserStore();
+  const [loading, setloading] = useState(false);
+  const navigate = useNavigate();
 
-const Deldir=async(id)=>{
-  try{
-    await Delete('dir',id)
-    await Delete('notes',id)
-    setdirdata((prev)=>prev.filter((item)=>item._id!=id))
+  const Deldir = async (id) => {
+    try {
+      await Delete("dir", id);
+      await Delete("notes", id);
+      setdirdata((prev) => prev.filter((item) => item._id !== id));
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
-  }catch(e){
-    console.log(e)
-  }
-
-}
-const Delnotes=async(id)=>{
-  try{
-    await Delete('noteid',id)
-    
-    setnotes((prev)=>prev.filter((item)=>item._id!=id))
-
-  }catch(e){
-    console.log(e)
-  }
-
-}
-
-
+  const Delnotes = async (id) => {
+    try {
+      await Delete("noteid", id);
+      setnotes((prev) => prev.filter((item) => item._id !== id));
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     const dirdata = async () => {
       try {
         const resdata = await axios.get(`/apii/dir/${user._id}`);
-        console.log("dirdata", resdata);
         setdirdata(resdata.data);
       } catch (e) {
         console.log(e);
       }
     };
     dirdata();
+    localStorage.removeItem("noteid");
   }, []);
 
   const getnotes = async (id) => {
     setOpenDir(openDir === id ? null : id);
     try {
       const notesdata = await axios.get(`/apii/notes/${id}`);
-      console.log("notes",notesdata.data);
       setnotes(notesdata.data);
-      
+      // setShowFormIndex(null);
     } catch (e) {
       console.log(e);
     }
   };
 
-  const setNotes=async(id,e)=>{
-    e.preventDefault()
-    const data={
-      dirid:id,
-      desc:e.target.desc.value,
-      heading:e.target.desc.value,
-      grade:e.target.value
+  const setNotes = async (id, e) => {
+    e.preventDefault();
+    const data = {
+      dirid: id,
+      desc: e.target.desc.value,
+      heading: e.target.heading.value,
+      grade: e.target.grade.value,
+    };
+    try {
+      setloading(true);
+      const res = await axios.post("/apii/notes/", data);
+      await axios.post(`/apii/user/submission/${user._id}`);
+      // setShowFormIndex(null);
+      getnotes(id); // Refresh notes after add
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setloading(false);
     }
-    try{
-      setloading(true)
-      console.log(data,"data is"); 
-      const res=await axios.post("/apii/notes/",data)
-      console.log(user._id)
-      const res2=await axios.post(`/apii/user/submision/${user._id}`,data)
-      console.log(res2.data)
-
-      setShowFormIndex(null);
-     
-
-
-
-
-    }catch(e){
-      console.log(e)
-    }finally{
-      setloading(false)
-    }
-  }
-
-
-  useEffect(() => {
-    // Clear noteid when this page is mounted
-    localStorage.removeItem("noteid");
-  }, []);
-
-
-
+  };
 
   const getGradeColorClass = (grade) => {
     switch (grade) {
@@ -115,52 +93,57 @@ const Delnotes=async(id)=>{
         return "bg-gray-500";
     }
   };
-  const gotoNotes=(id,e)=>{
+
+  const gotoNotes = (id, e) => {
     e.preventDefault();
-   
-      localStorage.setItem("noteid", id);
-    navigate("/notes")
+    localStorage.setItem("noteid", id);
+    navigate("/notes");
+  };
 
-  }
+  if (loading)
+    return (
+      <div className="w-full h-screen flex justify-center items-center text-white text-xl">
+        Loading...
+      </div>
+    );
 
-   if (loading)return <div>loading</div> 
-   else return(
-    <div className="w-full h-full p-6 bg-[#1F1D1D] text-white">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Directory</h2>
-        <button className="bg-green-600 hover:bg-green-700 p-2 rounded-md">
+  return (
+    <div className="w-full h-full px-3 sm:px-6 py-4 bg-[#1F1D1D] text-white overflow-y-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">📁 Your Directories</h2>
+        {/* <button className="bg-green-600 hover:bg-green-700 p-2 rounded-md">
           <FiPlus className="text-white text-lg" />
-        </button>
+        </button> */}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 min-w-[240px]">
         {dirdata.map((dir, index) => (
-          <div key={dir._id || index} className="bg-[#2C2C2C] rounded-lg p-4">
-            {/* Directory Header */}
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-4 h-4 rounded-sm ${getGradeColorClass(
-                    dir.grade
-                  )}`}
-                />
-                <span className="text-lg font-semibold">{dir.Dirname}</span>
+          <div key={dir._id || index} className="bg-[#2C2C2C] rounded-lg p-5 shadow-md ">
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <div className="flex gap-3 items-center">
+                <div className={`w-4 h-4 rounded ${getGradeColorClass(dir.grade)}`} />
+                <div>
+                  <p className="text-xl font-semibold">{dir.Dirname}</p>
+                  <p className="text-sm text-gray-400">{dir.desc}</p> 
+                </div>
               </div>
-              <div className="flex gap-2">
+             <div className="flex gap-2 sm:gap-5 items-center">
+
                 <button
-                  className="text-sm text-white bg-green-700 px-2 py-1 rounded hover:bg-green-800"
+  className="text-xs sm:text-sm bg-blue-700 hover:bg-blue-800 px-2 sm:px-3 py-1 rounded-md"
                   onClick={() =>
                     setShowFormIndex(showFormIndex === index ? null : index)
                   }
-                >   
-                  {showFormIndex!=null?"close":"+ Add"}
+                >
+                  {showFormIndex === index ? "Close" : "+ Add Note"}
                 </button>
-                <button className="text-red-400 hover:text-red-500" onClick={()=>Deldir(dir._id)} >
-                  <FaTrash size={18} />
-                  </button>
-                <button className="p-1" onClick={() => getnotes(dir._id)}>
+                <button onClick={() => Deldir(dir._id)} className="hover:text-red-500">
+                  <FaTrash />
+                </button>
+                <button onClick={() => getnotes(dir._id)}>
                   <FiChevronDown
-                    className={`transition-transform ${
+                    className={`transition-transform duration-300 ${
                       openDir === dir._id ? "rotate-180" : ""
                     }`}
                   />
@@ -170,68 +153,33 @@ const Delnotes=async(id)=>{
 
             {/* Add Note Form */}
             {showFormIndex === index && (
-              <form className="bg-[#1c1c1c] p-4 rounded-md mb-3 space-y-3" onSubmit={(e)=>setNotes(dir._id,e)}>
+              <form
+                onSubmit={(e) => setNotes(dir._id, e)}
+                className="mt-4 bg-[#1c1c1c] p-4 rounded-md space-y-3"
+              >
                 <input
-                  type="text"
-                  placeholder="Heading"
                   name="heading"
-                  className="w-full px-3 py-2 rounded bg-[#2d2d2d] text-white"
+                  placeholder="Heading"
+                  className="w-full px-3 py-2 bg-[#2d2d2d] rounded text-white"
                 />
                 <textarea
+                  name="desc"
                   placeholder="Description"
                   rows={3}
-                  name="desc"
-                  className="w-full px-3 py-2 rounded bg-[#2d2d2d] text-white"
-                ></textarea>
-
-                {/* <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
-                /> */}
-
-                {/* <input
-                  type="text"
-                  placeholder="Image URL"
-                  className="w-full px-3 py-2 rounded bg-[#2d2d2d] text-white"
-                /> */}
-
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <div className="w-6 h-4 rounded-sm bg-green-500"></div>
-                    <input
-                      type="radio"
-                      name={`grade`}
-                      value="green"
-                      className="accent-green-500"
-                    />
-                    Green
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <div className="w-6 h-4 rounded-sm bg-red-500"></div>
-                    <input
-                      type="radio"
-                      name={`grade`}
-                      value="red"
-                      className="accent-red-500"
-                    />
-                    Red
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <div className="w-6 h-4 rounded-sm bg-yellow-400"></div>
-                    <input
-                      type="radio"
-                      name={`grade`}
-                      value="yellow"
-                      className="accent-yellow-400"
-                    />
-                    Yellow
-                  </label>
+                  className="w-full px-3 py-2 bg-[#2d2d2d] rounded text-white"
+                />
+                <div className="flex gap-4 text-sm">
+                  {["green", "red", "yellow"].map((color) => (
+                    <label key={color} className="flex items-center gap-2">
+                      <div className={`w-6 h-4 rounded-sm ${getGradeColorClass(color)}`}></div>
+                      <input type="radio" name="grade" value={color} required />
+                      {color.charAt(0).toUpperCase() + color.slice(1)}
+                    </label>
+                  ))}
                 </div>
-
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white w-full"
+                  className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
                 >
                   Add Note
                 </button>
@@ -239,39 +187,50 @@ const Delnotes=async(id)=>{
             )}
 
             {/* Notes */}
-   {openDir === dir._id && notes.length > 0 && (
-  <div className="mt-2 space-y-2 pl-6">
-    {notes.map((note, noteIdx) => (
-      <div
-   
-        key={noteIdx}
-        className="flex items-center hover:bg-[#3A3A3A] px-3 py-2 rounded-md cursor-pointer"
-      >
-        <div className="flex flex-col w-full" onClick={(e)=>gotoNotes(note._id,e)}>
-          <div className="flex justify-between items-center">
-            <span className="font-bold">{note.heading}</span>
-            
-          </div>
-          <span>{note.desc}</span>
-        </div>
-        <div className="flex gap-5">
-             <button className="text-red-400 hover:text-red-500" onClick={()=>Delnotes(note._id)} >
-                  <FaTrash size={18} />
-                  </button>
-            <FaArrowRight className="text-xl rotate-90 text-white" />
-          </div>
+            {openDir === dir._id && notes.length > 0 && (
+              <div className="mt-4 space-y-3">
+               {notes.map((note, noteIdx) => (
+  <div
+    key={noteIdx}
+    className="flex items-start bg-[#3A3A3A] p-3 rounded-md hover:bg-[#444] transition-all cursor-pointer"
+  >
+    {/* Grade box on the left */}
+    <div className="mr-4 mt-1">
+      <span
+        className={`w-3 h-3 rounded block ${getGradeColorClass(note.grade)}`}
+      ></span>
+    </div>
+
+    {/* Note content */}
+    <div
+      className="flex flex-col w-full"
+      onClick={(e) => gotoNotes(note._id, e)}
+    >
+      <div className="flex justify-between items-center mb-1">
+        <span className="font-bold text-sm sm:text-base text-white">{note.heading}</span>
       </div>
-    ))}
+      <p className="text-gray-400 text-xs sm:text-sm">{note.desc}</p>
+    </div>
+
+    {/* Actions */}
+    <div className="flex gap-3 items-center ml-4">
+      <button
+        className="text-red-400 hover:text-red-500"
+        onClick={() => Delnotes(note._id)}
+      >
+        <FaTrash size={16} />
+      </button>
+      <FaArrowRight className="text-lg rotate-90" />
+    </div>
   </div>
-)}
+))}
 
-
-
-
-
+              </div>
+            )}
           </div>
         ))}
       </div>
     </div>
   );
 }
+

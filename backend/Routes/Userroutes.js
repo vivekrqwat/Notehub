@@ -136,7 +136,7 @@ router.post("/submission/:id", authenticate, async (req, res) => {
   try {
     const uid = req.params.id;
     const formatted = moment().format("YYYY-MM-DD");
-
+console.log("hello")
     console.log("✅ Submission attempt for:", formatted);
 
     const updatedUser = await Usermodel.findByIdAndUpdate(
@@ -155,6 +155,15 @@ router.post("/submission/:id", authenticate, async (req, res) => {
     return error(res, 500, { error: e, message: "Updating error" });
   }
 });
+//logout
+router.post("/logout",async(req,res)=>{
+    try{
+           res.cookie("jwt", "", { maxAge: 0 }); 
+               res.status(200).json({ message: "Logged out successfully" });   
+    }catch(e){
+        return error(res, 500, { error: e, message: "loging out error" });
+    }
+})
 
 
 

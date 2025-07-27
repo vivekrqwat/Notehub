@@ -1,5 +1,6 @@
 import React from "react";
 import { UserStore } from "../store/Userstroe";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const{login,user}=UserStore();
@@ -14,6 +15,7 @@ const Login = () => {
    login(formdata);
 
   }
+  const navigate=useNavigate()
   return (
     <div className="min-h-screen bg-[#ECECEC] flex items-center justify-center px-4">
       <div className="flex flex-col md:flex-row rounded-md overflow-hidden max-w-6xl w-full gap-6 items-center md:items-end">
@@ -51,6 +53,15 @@ const Login = () => {
               className="w-full bg-[#332B2B] text-white py-2 rounded hover:bg-[#1f1a1a] transition"
             >Login
             </button>
+           <p className="text-center text-sm text-gray-600 mt-2">
+              Don’t have an account?{" "}
+              <span
+                onClick={() => navigate("/signup")}
+                className="text-[#FFA500] font-medium cursor-pointer underline hover:text-[#cc8400]"
+              >
+                Sign up here
+              </span>
+            </p>
           </form>
         </div>
 
@@ -83,6 +94,7 @@ const Login = () => {
 
 
       </div>
+     
     </div>
   );
 };
