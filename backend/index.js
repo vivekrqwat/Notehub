@@ -12,7 +12,7 @@ dotenv.config();
 const cors = require("cors");
 
 app.use(cors({
-["https://notehub-frontend.onrender.com", "http://localhost:5173"],
+  origin:  ["http://localhost:5173", "https://notehub-frontend.onrender.com"],
   credentials: true // if using cookies
 }));
 app.use(cookieParser())

@@ -7,11 +7,11 @@ const Usermodel = require('../models/User');
     const token=jwt.sign(data,process.env.JT,{
          expiresIn: "7d",
     })
-<<<<<<< HEAD
-   res.cookie("jwt", token, {
-=======
+
+
+
 res.cookie("jwt", token, {
->>>>>>> 1e3058dfd2ba7aaf33964f7e6d86113b7e5da806
+
   maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
   secure: true,         // Needed for HTTPS (Render)
