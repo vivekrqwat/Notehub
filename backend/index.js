@@ -12,7 +12,7 @@ dotenv.config();
 const cors = require("cors");
 
 app.use(cors({
-  origin: "http://localhost:5173", // Vite default port
+["https://notehub-frontend.onrender.com", "http://localhost:5173"],
   credentials: true // if using cookies
 }));
 app.use(cookieParser())
