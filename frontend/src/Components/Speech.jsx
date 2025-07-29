@@ -28,6 +28,7 @@
       const handleStart = () => {
           console.log("Start");
           SpeechRecognition.startListening({ continuous: true ,language:"en-In"});
+          console.log("Listening started");
       };
 
       const handleStop = () => {
