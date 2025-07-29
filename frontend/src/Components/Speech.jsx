@@ -26,43 +26,29 @@ export default function Speech({ setshow, desc }) {
     const [isSupported, setIsSupported] = useState(false);
     const [permissionGranted, setPermissionGranted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [forceStop, setForceStop] = useState(false);
 
-    // Check for speech recognition support
-    const checkSpeechSupport = useCallback(() => {
-        const hasWebkit = 'webkitSpeechRecognition' in window;
-        const hasNative = 'SpeechRecognition' in window;
-        const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
-        
-        return (hasWebkit || hasNative) && isHTTPS;
-    }, []);
-
-    // Request microphone permission
-    const requestMicrophonePermission = useCallback(async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
-            setPermissionGranted(true);
-            return true;
-        } catch (error) {
-            console.error('Microphone permission denied:', error);
-            toast.error("Microphone permission required for speech recognition");
-            setPermissionGranted(false);
-            return false;
-        }
-    }, []);
-
-    // Initialize component
+    // Initialize component on mount
     useEffect(() => {
-        const initialize = async () => {
+        const initializeComponent = async () => {
             setIsLoading(true);
             
             // Check browser support
-            const supported = checkSpeechSupport() && browserSupportsSpeechRecognition;
+            const hasWebkit = 'webkitSpeechRecognition' in window;
+            const hasNative = 'SpeechRecognition' in window;
+            const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+            const supported = (hasWebkit || hasNative) && isHTTPS && browserSupportsSpeechRecognition;
+            
             setIsSupported(supported);
             
-            if (supported) {
-                // Request microphone permission
-                await requestMicrophonePermission();
+            // Try to get initial microphone permission status
+            if (supported && navigator.permissions) {
+                try {
+                    const permission = await navigator.permissions.query({ name: 'microphone' });
+                    setPermissionGranted(permission.state === 'granted');
+                } catch (error) {
+                    console.log('Permission query not supported');
+                }
             }
             
             // Set random quote
@@ -72,12 +58,45 @@ export default function Speech({ setshow, desc }) {
             setIsLoading(false);
         };
 
-        initialize();
-    }, [browserSupportsSpeechRecognition, checkSpeechSupport, requestMicrophonePermission]);
+        initializeComponent();
+    }, [browserSupportsSpeechRecognition]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            try {
+                SpeechRecognition.stopListening();
+                if (SpeechRecognition.abortListening) {
+                    SpeechRecognition.abortListening();
+                }
+            } catch (error) {
+                console.error('Cleanup error:', error);
+            }
+        };
+    }, []);
+
+    // Debug logging (remove in production)
+    useEffect(() => {
+        console.log('Speech state:', { listening, transcriptLength: transcript.length, forceStop });
+    }, [listening, transcript.length, forceStop]);
+
+    const requestMicrophonePermission = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            setPermissionGranted(true);
+            return true;
+        } catch (error) {
+            console.error('Microphone permission denied:', error);
+            toast.error("Microphone permission is required for speech recognition");
+            setPermissionGranted(false);
+            return false;
+        }
+    };
 
     const handleStart = useCallback(async () => {
         if (!isSupported) {
-            toast.error("Speech recognition not supported");
+            toast.error("Speech recognition is not supported in this browser");
             return;
         }
 
@@ -87,28 +106,75 @@ export default function Speech({ setshow, desc }) {
         }
 
         try {
+            setForceStop(false);
             console.log("Starting speech recognition...");
+            
             SpeechRecognition.startListening({ 
                 continuous: true,
-                language: "en-IN", // Fixed language code
+                language: "en-IN",
                 interimResults: true
             });
-            toast.info("Started listening... Speak now!");
+            
+            toast.info("🎤 Listening... Start speaking!");
         } catch (error) {
             console.error('Failed to start speech recognition:', error);
-            toast.error("Failed to start speech recognition");
+            toast.error("Failed to start speech recognition. Please try again.");
         }
-    }, [isSupported, permissionGranted, requestMicrophonePermission]);
+    }, [isSupported, permissionGranted]);
 
     const handleStop = useCallback(() => {
         console.log("Stopping speech recognition...");
-        SpeechRecognition.stopListening();
-        toast.info("Stopped listening");
+        
+        try {
+            setForceStop(true);
+            SpeechRecognition.stopListening();
+            
+            // Try abort as fallback
+            setTimeout(() => {
+                if (SpeechRecognition.abortListening) {
+                    SpeechRecognition.abortListening();
+                }
+            }, 100);
+            
+            // Reset force stop after a delay
+            setTimeout(() => {
+                setForceStop(false);
+            }, 1000);
+            
+            toast.info("⏹️ Stopped listening");
+        } catch (error) {
+            console.error('Error stopping speech recognition:', error);
+            toast.error("Error stopping speech recognition");
+            setForceStop(false);
+        }
     }, []);
 
     const handleReset = useCallback(() => {
-        resetTranscript();
-        toast.info("Text cleared");
+        try {
+            console.log("Resetting transcript...");
+            
+            // Stop listening first
+            setForceStop(true);
+            SpeechRecognition.stopListening();
+            
+            if (SpeechRecognition.abortListening) {
+                SpeechRecognition.abortListening();
+            }
+            
+            // Reset transcript after a short delay
+            setTimeout(() => {
+                resetTranscript();
+                setForceStop(false);
+                toast.info("🗑️ Text cleared");
+            }, 200);
+            
+        } catch (error) {
+            console.error('Error resetting:', error);
+            // Force reset even if there's an error
+            resetTranscript();
+            setForceStop(false);
+            toast.info("🗑️ Text cleared");
+        }
     }, [resetTranscript]);
 
     const handleSave = useCallback(() => {
@@ -117,21 +183,70 @@ export default function Speech({ setshow, desc }) {
             return;
         }
 
-        toast.success("Saved!");
-        desc((prev) => ({
-            ...prev,
-            desc: transcript
-        }));
-        setshow(false);
-        resetTranscript();
-        SpeechRecognition.stopListening();
+        try {
+            console.log("Saving transcript...");
+            
+            // Stop listening first
+            setForceStop(true);
+            SpeechRecognition.stopListening();
+            
+            if (SpeechRecognition.abortListening) {
+                SpeechRecognition.abortListening();
+            }
+            
+            // Save the transcript
+            desc((prev) => ({
+                ...prev,
+                desc: transcript
+            }));
+            
+            toast.success("✅ Saved successfully!");
+            
+            // Clean up and close
+            setTimeout(() => {
+                resetTranscript();
+                setshow(false);
+            }, 500);
+            
+        } catch (error) {
+            console.error('Error saving:', error);
+            toast.error("Error saving, but text was captured");
+            
+            // Still save even if there's an error
+            desc((prev) => ({
+                ...prev,
+                desc: transcript
+            }));
+            setshow(false);
+        }
     }, [transcript, desc, setshow, resetTranscript]);
 
     const handleClose = useCallback(() => {
-        SpeechRecognition.stopListening();
-        resetTranscript();
-        setshow(false);
+        try {
+            console.log("Closing speech component...");
+            
+            setForceStop(true);
+            SpeechRecognition.stopListening();
+            
+            if (SpeechRecognition.abortListening) {
+                SpeechRecognition.abortListening();
+            }
+            
+            setTimeout(() => {
+                resetTranscript();
+                setshow(false);
+            }, 200);
+            
+        } catch (error) {
+            console.error('Error closing:', error);
+            // Force close even if there's an error
+            resetTranscript();
+            setshow(false);
+        }
     }, [setshow, resetTranscript]);
+
+    // Determine current listening state
+    const isCurrentlyListening = listening && !forceStop;
 
     // Loading state
     if (isLoading) {
@@ -139,7 +254,7 @@ export default function Speech({ setshow, desc }) {
             <div className="w-full max-w-[500px] min-w-[300px] bg-[#302D2D] text-white p-4 sm:p-6 rounded-xl shadow-xl mx-auto my-4">
                 <div className="flex items-center justify-center h-40">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                    <span className="ml-2">Loading...</span>
+                    <span className="ml-3 text-lg">Loading speech recognition...</span>
                 </div>
             </div>
         );
@@ -153,23 +268,24 @@ export default function Speech({ setshow, desc }) {
                     <h1 className="text-xl sm:text-2xl font-bold">Speech Recognition</h1>
                     <button 
                         onClick={handleClose}
-                        className="text-gray-400 hover:text-white"
+                        className="text-gray-400 hover:text-white transition-colors px-3 py-1 rounded"
                     >
-                        close
+                        ✕ close
                     </button>
                 </div>
                 <div className="text-center py-8">
                     <FaMicrophoneSlash className="mx-auto text-4xl text-red-500 mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Not Supported</h3>
-                    <p className="text-gray-400 mb-4">
-                        Speech recognition is not supported in this browser or requires HTTPS.
+                    <h3 className="text-lg font-semibold mb-3 text-red-400">Not Supported</h3>
+                    <p className="text-gray-300 mb-4 leading-relaxed">
+                        Speech recognition is not supported in this browser or environment.
                     </p>
-                    <div className="text-sm text-gray-500">
-                        <p>Try using:</p>
-                        <ul className="list-disc list-inside mt-2">
-                            <li>Chrome or Edge browser</li>
-                            <li>HTTPS connection</li>
-                            <li>Allow microphone permissions</li>
+                    <div className="text-sm text-gray-400 bg-gray-700 p-4 rounded-lg">
+                        <p className="font-semibold mb-2">Requirements:</p>
+                        <ul className="list-disc list-inside space-y-1 text-left">
+                            <li>Chrome, Edge, or Safari browser</li>
+                            <li>HTTPS connection (secure site)</li>
+                            <li>Microphone permissions allowed</li>
+                            <li>Modern browser version</li>
                         </ul>
                     </div>
                 </div>
@@ -179,88 +295,116 @@ export default function Speech({ setshow, desc }) {
 
     return (
         <div className="w-full max-w-[500px] min-w-[300px] bg-[#302D2D] text-white p-4 sm:p-6 rounded-xl shadow-xl mx-auto my-4">
-            <div className="mb-2">
-                <div className="flex justify-between items-center mb-2">
-                    <h1 className="text-xl sm:text-2xl font-bold">Let ME write for u :-)</h1>
+            {/* Header */}
+            <div className="mb-4">
+                <div className="flex justify-between items-center mb-3">
+                    <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                        Let ME write for u 😊
+                    </h1>
                     <button 
                         onClick={handleClose}
-                        className="text-gray-400 hover:text-white px-2 py-1 rounded"
+                        className="text-gray-400 hover:text-white transition-colors px-3 py-1 rounded hover:bg-gray-600"
                     >
-                        close
+                        ✕ close
                     </button>
                 </div>
-                <p className="text-sm text-gray-400 italic">
+                
+                {/* Quote */}
+                <p className="text-sm text-gray-400 italic leading-relaxed border-l-2 border-blue-500 pl-3">
                     {quote}
                 </p>
-                {listening && (
-                    <div className="flex items-center gap-2 mt-2 animate-pulse text-green-400 font-semibold">
+                
+                {/* Status indicators */}
+                {isCurrentlyListening && (
+                    <div className="flex items-center gap-2 mt-3 animate-pulse text-green-400 font-semibold bg-green-900/20 p-2 rounded-lg">
                         <span className="h-2 w-2 rounded-full bg-green-400 animate-ping" />
-                        Listening...
+                        🎤 Listening... Speak now!
                     </div>
                 )}
-                {!permissionGranted && (
-                    <div className="flex items-center gap-2 mt-2 text-yellow-400 text-sm">
+                
+                {!permissionGranted && isSupported && (
+                    <div className="flex items-center gap-2 mt-3 text-yellow-400 text-sm bg-yellow-900/20 p-2 rounded-lg">
                         <span>⚠️</span>
-                        Microphone permission required
+                        Microphone permission required - click Start to grant access
                     </div>
                 )}
             </div>
 
-            <h2 className="font-bold text-md mt-4">We start from here</h2>
-            <textarea
-                className="w-full h-40 mt-2 p-3 rounded-md bg-white text-black resize-none text-sm sm:text-base"
-                placeholder="Click 'Start' and begin speaking..."
-                value={transcript}
-                readOnly
-            />
+            {/* Transcript area */}
+            <div className="mb-4">
+                <h2 className="font-bold text-md mb-2 flex items-center gap-2">
+                    📝 Your Speech Text
+                    {transcript.trim() && (
+                        <span className="text-xs bg-blue-600 px-2 py-1 rounded-full">
+                            {transcript.trim().length} chars
+                        </span>
+                    )}
+                </h2>
+                <textarea
+                    className="w-full h-40 p-3 rounded-lg bg-white text-black resize-none text-sm sm:text-base border-2 border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
+                    placeholder={isCurrentlyListening ? "Listening... speak now!" : "Click 'Start' and begin speaking..."}
+                    value={transcript}
+                    readOnly
+                />
+            </div>
 
-            <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2">
+            {/* Control buttons */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
                 <button
                     onClick={handleStart}
-                    disabled={listening || !permissionGranted}
-                    className={`flex items-center justify-center gap-2 w-full sm:w-[120px] px-4 py-2 rounded-md font-medium transition-colors ${
-                        listening || !permissionGranted
-                            ? 'bg-gray-600 cursor-not-allowed'
-                            : 'bg-green-600 hover:bg-green-700'
+                    disabled={isCurrentlyListening || (!permissionGranted && !isSupported)}
+                    className={`flex items-center justify-center gap-2 w-full sm:w-[120px] px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        isCurrentlyListening || (!permissionGranted && !isSupported)
+                            ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                            : 'bg-green-600 hover:bg-green-700 hover:scale-105 shadow-lg'
                     } text-white`}
                 >
-                    <FaMicrophone /> {listening ? 'Recording...' : 'Start'}
+                    <FaMicrophone /> 
+                    {isCurrentlyListening ? 'Recording...' : 'Start'}
                 </button>
+                
                 <button
                     onClick={handleStop}
-                    disabled={!listening}
-                    className={`w-full sm:w-[120px] px-4 py-2 rounded-md font-medium transition-colors ${
-                        !listening
-                            ? 'bg-gray-600 cursor-not-allowed'
-                            : 'bg-red-600 hover:bg-red-700'
+                    disabled={!isCurrentlyListening}
+                    className={`w-full sm:w-[120px] px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        !isCurrentlyListening
+                            ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                            : 'bg-red-600 hover:bg-red-700 hover:scale-105 shadow-lg'
                     } text-white`}
                 >
-                    Stop
+                    ⏹️ Stop
                 </button>
+                
                 <button
                     onClick={handleReset}
-                    disabled={!transcript}
-                    className={`w-full sm:w-[120px] px-4 py-2 rounded-md font-medium transition-colors ${
-                        !transcript
-                            ? 'bg-gray-600 cursor-not-allowed'
-                            : 'bg-yellow-500 hover:bg-yellow-600'
+                    disabled={!transcript.trim()}
+                    className={`w-full sm:w-[120px] px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        !transcript.trim()
+                            ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                            : 'bg-yellow-500 hover:bg-yellow-600 hover:scale-105 shadow-lg'
                     } text-white`}
                 >
-                    Reset
+                    🗑️ Reset
                 </button>
             </div>
 
+            {/* Save button */}
             <button
                 onClick={handleSave}
                 disabled={!transcript.trim()}
-                className={`w-full mt-4 py-2 rounded-md font-semibold transition-colors ${
+                className={`w-full py-3 rounded-lg font-semibold transition-all duration-200 ${
                     !transcript.trim()
-                        ? 'bg-gray-600 cursor-not-allowed'
-                        : 'bg-green-700 hover:bg-green-800'
+                        ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                        : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:scale-105 shadow-lg'
                 } text-white`}
             >
-                Save ({transcript.trim().length} characters)
+                💾 Save Text {transcript.trim() && `(${transcript.trim().length} characters)`}
             </button>
+            
+            {/* Help text */}
+            <p className="text-xs text-gray-500 text-center mt-3">
+                💡 Tip: Speak clearly and pause briefly between sentences for better accuracy
+            </p>
         </div>
     );
 }
