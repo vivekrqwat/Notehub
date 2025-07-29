@@ -40,7 +40,7 @@ export default function Speech({ setshow, desc }) {
 
   const handleStart = async () => {
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      // await navigator.mediaDevices.getUserMedia({ audio: true });
       SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
       toast.info("Listening started...");
     } catch (err) {
@@ -49,8 +49,9 @@ export default function Speech({ setshow, desc }) {
     }
   };
 
-  const handleStop = () => {
+  const handleStop = () => {  
     SpeechRecognition.stopListening();
+     toast.info("Stopped listening");
   };
 
   const handleReset = () => {
@@ -58,10 +59,10 @@ export default function Speech({ setshow, desc }) {
   };
 
   const handleSave = () => {
-    if (!transcript.trim()) {
-      toast.warn("No speech detected.");
-      return;
-    }
+    // if (!transcript.trim()) {
+    //   toast.warn("No speech detected.");
+    //   return;
+    // }
 
     desc((prev) => ({
       ...prev,
