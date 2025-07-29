@@ -3,6 +3,9 @@ import axios from 'axios';
 import Upload from '../utils/Upload';
 import { FaTrash } from 'react-icons/fa';
 import Delete from '../utils/Delete';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import Speech from './Speech.jsx';
+
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -12,6 +15,7 @@ export default function Notes() {
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [contentdata, setcontentdata] = useState([]);
+  const [show, setShow] = useState(false);
   const [formData, setFormData] = useState({
     heading: '',
     desc: '',
@@ -19,15 +23,9 @@ export default function Notes() {
     image: null,
     imageUrl: ''
   });
+  
 
-  const delnotes = async (id) => {
-    try {
-      await Delete("content", id);
-      setcontentdata((prv) => prv.filter((item) => item._id != id[1]));
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  
 
   const fetchNote = async () => {
     if (!noteid) return;
@@ -37,6 +35,15 @@ export default function Notes() {
       setcontentdata(res.data.content);
     } catch (err) {
       console.log("Error fetching notes:", err);
+    }
+  };
+  const delnotes = async (id) => {
+    try {
+      await Delete("content", id);
+      fetchNote();
+      // setcontentdata((prv) => prv.filter((item) => item._id != id[1]));
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -86,8 +93,10 @@ export default function Notes() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-[#1F1D1D] text-white p-4 sm:p-6">
+   <div className="min-h-screen max-h-screen overflow-y-auto bg-[#1F1D1D] text-white p-4 sm:p-6">
+
       <div className="max-w-4xl mx-auto w-full">
+        {show?<Speech setshow={setShow} desc={setFormData}></Speech>:null}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl sm:text-2xl font-bold">{notedata?.heading}</h1>
           <button
@@ -143,12 +152,24 @@ export default function Notes() {
                 />
               ))}
             </div>
-            <button
-              type="submit"
-              className="bg-[#22c55e] px-4 py-2 rounded-xl text-white font-semibold w-full sm:w-auto"
-            >
-              Save
-            </button>
+           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:justify-start">
+  <button
+    type="submit"
+    className="bg-[#22c55e] px-4 py-2 rounded-xl text-white font-semibold w-full sm:w-auto"
+  >
+    Save
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setShow(true)}
+    className="bg-[#22c55e] px-4 py-2 rounded-xl text-white font-semibold w-full sm:w-auto"
+  >
+    Audio to text
+  </button>
+</div>
+
+            
           </form>
         )}
 
@@ -175,6 +196,7 @@ export default function Notes() {
             </div>
           ))}
         </div>
+        
       </div>
     </div>
   );

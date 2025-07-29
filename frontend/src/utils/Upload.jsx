@@ -7,7 +7,7 @@ export default async function Upload(image) {
 
   if (image) {
     try {
-      const auth = await axios.get(`${API}/apii/upcheck/auth`);
+      const auth = await axios.get(`${API}/apii/upcheck/auth`,{withCredentials:true});
       const res = auth.data;
 
       const formData = new FormData();
