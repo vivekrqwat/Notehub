@@ -65,20 +65,17 @@ useEffect(() => {
   };
 
   getRandomQuote();
+  navigator.mediaDevices.getUserMedia({ audio: true }).catch((err) => {
+    console.error("Mic permission error", err);
+    toast.error("Microphone permission is needed to use this feature."); });
 
-  // Prompt for mic access
-  if (typeof window !== "undefined") {
-    navigator.mediaDevices.getUserMedia({ audio: true }).catch((err) => {
-      console.error("Microphone permission denied:", err);
-      toast.error("Microphone permission is required for speech recognition.");
-    });
-  }
+
 }, []);
 
       
-      if (!browserSupportsSpeechRecognition) {
-          return <span>Browser doesn't support speech recognition.</span>;
-      }
+   if (typeof window === "undefined" || !browserSupportsSpeechRecognition) {
+  return <span>Speech recognition not supported in this environment.</span>;
+}
       return (
           <div className="w-full max-w-[500px] min-w-[300px] bg-[#302D2D] text-white p-4 sm:p-6 rounded-xl shadow-xl mx-auto my-4">
           <div className="mb-2">
