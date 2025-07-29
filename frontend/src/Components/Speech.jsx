@@ -73,10 +73,10 @@
         toast.error("Speech recognition not supported in this browser");
     }
 }, [browserSupportsSpeechRecognition]);
-const checkSpeechSupport = () => {
-    return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-};
-checkSpeechSupport();
+// const checkSpeechSupport = () => {
+//     return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+// };
+// checkSpeechSupport();
     
     if (!browserSupportsSpeechRecognition) {
         return <span>Browser doesn't support speech recognition.</span>;
