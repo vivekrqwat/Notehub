@@ -5,6 +5,7 @@ import { FaTrash } from 'react-icons/fa';
 import Delete from '../utils/Delete';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import Speech from './Speech.jsx';
+import { UserStore } from '../store/Userstroe.jsx';
 
 
 const API = import.meta.env.VITE_API_URL;
@@ -23,7 +24,7 @@ export default function Notes() {
     image: null,
     imageUrl: ''
   });
-  
+  const { user } = UserStore();
 
   
 
@@ -62,6 +63,8 @@ export default function Notes() {
         content: [...(notedata?.content || []), noteToAdd],
       };
       const res = await axios.put(`${API}/apii/notes/${noteid}`, data,{withCredentials:true});
+      const res2=await axios.post(`${API}/apii/user/submission/${user._id}`,{withCredentials:true});
+      console.log("res2",res2.data);
       setNotedata(res.data);
       setFormData({ heading: '', desc: '', grade: '', image: null, imageUrl: '' });
       setShowForm(false);

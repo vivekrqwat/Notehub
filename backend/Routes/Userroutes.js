@@ -132,12 +132,13 @@ router.put('/update/:id',async(req,res)=>{
     }
 })
 //submmisiion
-router.post("/submission/:id", authenticate, async (req, res) => {
+router.post("/submission/:id", async (req, res) => {
   try {
     const uid = req.params.id;
     const formatted = moment().format("YYYY-MM-DD");
 console.log("hello")
     console.log("✅ Submission attempt for:", formatted);
+    console.log("momment",uid)
 
     const updatedUser = await Usermodel.findByIdAndUpdate(
       uid,
