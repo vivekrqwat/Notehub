@@ -19,8 +19,8 @@ export default async function Delete(name, id) {
     }
 
     if (name === "dir") {
-      await axios.delete(`${API}/apii/dir/${id}`);
-      console.log("dir", id);
+      const res=await axios.delete(`${API}/apii/dir/${id}`);
+      console.log("dir deleted", id,res.data);
       return;
     }
 

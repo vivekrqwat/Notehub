@@ -12,43 +12,39 @@ export default function Directory() {
   const [openDir, setOpenDir] = useState(null);
   const [showFormIndex, setShowFormIndex] = useState(null);
   const [dirdata, setdirdata] = useState([]);
-  const [notes, setnotes] = useState([]);
+
+  // ✅ Notes stored per directory
+  const [notesMap, setNotesMap] = useState({});
+
   const { user } = UserStore();
   const [loading, setloading] = useState(false);
   const navigate = useNavigate();
 
-  const Deldir = async (id) => {
+  const fetchDirData = async () => {
     try {
-      await Delete("dir", id);
-      await Delete("notes", id);
-      setdirdata((prev) => prev.filter((item) => item._id !== id));
+      const resdata = await axios.get(`${API}/apii/dir/${user._id}`, {
+        withCredentials: true,
+      });
+      setdirdata(resdata.data);
     } catch (e) {
       console.log(e);
     }
   };
 
-  const Delnotes = async (id) => {
+  const Delnotes = async (noteId, dirId) => {
     try {
-      await Delete("noteid", id);
-      setnotes((prev) => prev.filter((item) => item._id !== id));
+      await Delete("noteid", noteId);
+      // setNotesMap((prev) => ({
+      //   ...prev,
+      //   [dirId]: prev[dirId].filter((note) => note._id !== noteId),
+      // }));
+      fetchDirData(); // Refresh directories after deletion
     } catch (e) {
       console.log(e);
     }
   };
 
   useEffect(() => {
-    const fetchDirData = async () => {
-    
-      try {
-        const resdata = await axios.get(`${API}/apii/dir/${user._id}`, {
-          withCredentials: true,
-        });
-        console.log(resdata.data)
-        setdirdata(resdata.data);
-      } catch (e) {
-        console.log(e);
-      }
-    };
     fetchDirData();
     localStorage.removeItem("noteid");
   }, []);
@@ -59,10 +55,23 @@ export default function Directory() {
       const notesdata = await axios.get(`${API}/apii/notes/${id}`, {
         withCredentials: true,
       });
-      setnotes(notesdata.data);
+      setNotesMap((prev) => ({
+        ...prev,
+        [id]: notesdata.data,
+      }));
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const Deldir = async (id) => {
+    try {
+      await Delete("dir", id);
+      await Delete("notes", id);
+    } catch (e) {
+      console.log(e);
+    }
+    fetchDirData();
   };
 
   const setNotes = async (id, e) => {
@@ -81,7 +90,7 @@ export default function Directory() {
       await axios.post(`${API}/apii/user/submission/${user._id}`, {}, {
         withCredentials: true,
       });
-      getnotes(id);
+      getnotes(id); // Refresh notes for this directory
     } catch (e) {
       console.log(e);
     } finally {
@@ -91,14 +100,10 @@ export default function Directory() {
 
   const getGradeColorClass = (grade) => {
     switch (grade) {
-      case "green":
-        return "bg-green-500";
-      case "red":
-        return "bg-red-500";
-      case "yellow":
-        return "bg-yellow-400";
-      default:
-        return "bg-gray-500";
+      case "green": return "bg-green-500";
+      case "red": return "bg-red-500";
+      case "yellow": return "bg-yellow-400";
+      default: return "bg-gray-500";
     }
   };
 
@@ -123,7 +128,7 @@ export default function Directory() {
 
       <div className="space-y-4 min-w-[240px]">
         {dirdata?.map((dir, index) => (
-          <div key={dir._id || index} className="bg-[#2C2C2C] rounded-lg p-5 shadow-md ">
+          <div key={dir._id} className="bg-[#2C2C2C] rounded-lg p-5 shadow-md">
             <div className="flex justify-between items-start">
               <div className="flex gap-3 items-center">
                 <div className={`w-4 h-4 rounded ${getGradeColorClass(dir.grade)}`} />
@@ -186,11 +191,11 @@ export default function Directory() {
               </form>
             )}
 
-            {openDir === dir._id && notes.length > 0 && (
+            {openDir === dir._id && notesMap[dir._id]?.length > 0 && (
               <div className="mt-4 space-y-3">
-                {notes.map((note, noteIdx) => (
+                {notesMap[dir._id].map((note) => (
                   <div
-                    key={noteIdx}
+                    key={note._id}
                     className="flex items-start bg-[#3A3A3A] p-3 rounded-md hover:bg-[#444] transition-all cursor-pointer"
                   >
                     <div className="mr-4 mt-1">
@@ -209,7 +214,7 @@ export default function Directory() {
                     <div className="flex gap-3 items-center ml-4">
                       <button
                         className="text-red-400 hover:text-red-500"
-                        onClick={() => Delnotes(note._id)}
+                        onClick={() => Delnotes(note._id, dir._id)}
                       >
                         <FaTrash size={16} />
                       </button>
