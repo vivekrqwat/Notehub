@@ -138,14 +138,7 @@ export default function Notes() {
               className="mb-2"
               onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
             />
-            <input
-              type="text"
-              placeholder="Optional image URL"
-              className="w-full p-2 mb-2 rounded-md bg-[#1F1D1D] text-white"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-            />
+            <span>code</span>
             <div className="flex items-center gap-3 mb-3">
               {['yellow', 'green', 'red'].map((color) => (
                 <div
