@@ -25,6 +25,7 @@ export default function Notes() {
     image: null,
     imageUrl: ''
   });
+  const [showcode, setshowcode] = useState(false);
   const { user } = UserStore();
 
   
@@ -59,6 +60,7 @@ export default function Notes() {
         desc: formData.desc,
         grade: formData.grade,
         code: formData.code,
+        Approach: formData.Approach,
         img: Img,
       };
       const data = {
@@ -131,13 +133,27 @@ export default function Notes() {
               required
             />
             <textarea
-              placeholder="@write your notes"
+              placeholder={showcode?"@write question":"@write description"}
               className="w-full p-2 mb-2 rounded-md bg-[#1F1D1D] text-white"
               name="desc"
               value={formData.desc}
               onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
               required
               rows={8}
+            />
+<button
+  type="button"
+  onClick={() => setshowcode((prev) => !prev)}
+  className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-xl font-semibold text-sm sm:text-base mb-4 transition duration-300"
+>{showcode?"Printf":"write code"}</button>            {showcode && (
+              <>
+               <textarea
+              placeholder="@write Approach"
+              className="w-full p-2 mb-2 rounded-md bg-[#1F1D1D] text-white"
+              name="desc"
+              value={formData.Approach}
+              onChange={(e) => setFormData({ ...formData, Approach: e.target.value })}
+            rows={5}
             />
              <textarea
               placeholder="@write code"
@@ -147,6 +163,7 @@ export default function Notes() {
               onChange={(e) => setFormData({ ...formData, code: e.target.value })}
             rows={7}
             />
+            </>)}
             <input
               type="file"
               name="image"
@@ -197,6 +214,7 @@ export default function Notes() {
                 </button>
               </div>
               <p className="text-sm mb-2 text-gray-200">{note.desc}</p>
+                         <p className="text-sm mb-2 text-gray-200">{note?.Approach}</p>
               {note.img && (
                 <img
                   src={note.img}

@@ -8,6 +8,12 @@ const contenschema= new mongoose.Schema({
          type:String,
         default:""
     },
+    
+    Approach:{
+        type:String,
+        default:""
+
+    }
 })
 
 const noteSchema= new mongoose.Schema({
