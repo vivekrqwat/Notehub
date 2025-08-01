@@ -20,7 +20,7 @@ const DirectorySchema= new mongoose.Schema({
     },
     desc:{
         type:String,
-        maxlength: [100, "Description should not be more than 100 characters"]
+        maxlength: [500, "Description should not be more than 100 characters"]
     },
     topic:{
         type:[topicSchema],
