@@ -87,6 +87,10 @@ export default function Notes() {
     }
   };
 
+  const handlecopy = async (code) => {
+    await navigator.clipboard.writeText(code) 
+  }
+
   useEffect(() => {
     if (noteid) {
       localStorage.setItem("noteid", noteid);
@@ -133,6 +137,7 @@ export default function Notes() {
               value={formData.desc}
               onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
               required
+              rows={8}
             />
              <textarea
               placeholder="@write code"
@@ -140,7 +145,7 @@ export default function Notes() {
               name="desc"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-           
+            rows={7}
             />
             <input
               type="file"
@@ -199,8 +204,27 @@ export default function Notes() {
                   className="rounded-md w-full max-w-xs mb-2"
                 />
               )}
-              {note.code && (
+              {note.code && (<>
+<button
+  onClick={() => handlecopy(note.code)}
+  style={{
+    backgroundColor: '#2D2D2D',
+    color: '#fff',
+    border: 'none',
+    padding: '6px 12px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '12px',
+    transition: 'background 0.3s',
+    alignItems:"flex-end"
+  }}
+  onMouseEnter={(e) => (e.target.style.backgroundColor = '#444')}
+  onMouseLeave={(e) => (e.target.style.backgroundColor = '#2D2D2D')}
+>
+  Copy
+</button>
                 <CodeEditor cd={note.code}></CodeEditor>
+                </>
               )}
             </div>
           ))}
