@@ -3,7 +3,11 @@ const contenschema= new mongoose.Schema({
     heading:{type:String,default:""},
     desc:{type:String,default:""},
     img:{type:String,default:""},
-    grade: { type: String, default: "" }
+    grade: { type: String, default: "" },
+      code:{
+         type:String,
+        default:""
+    },
 })
 
 const noteSchema= new mongoose.Schema({
@@ -28,6 +32,7 @@ const noteSchema= new mongoose.Schema({
         type:String,
         default:""
     },
+  
     grade: { type: String, default: "" }
       
 

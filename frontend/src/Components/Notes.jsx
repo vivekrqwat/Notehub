@@ -6,6 +6,7 @@ import Delete from '../utils/Delete';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import Speech from './Speech.jsx';
 import { UserStore } from '../store/Userstroe.jsx';
+import CodeEditor from './CodeEditor.jsx';
 
 
 const API = import.meta.env.VITE_API_URL;
@@ -57,6 +58,7 @@ export default function Notes() {
         heading: formData.heading,
         desc: formData.desc,
         grade: formData.grade,
+        code: formData.code,
         img: Img,
       };
       const data = {
@@ -132,13 +134,21 @@ export default function Notes() {
               onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
               required
             />
+             <textarea
+              placeholder="@write code"
+              className="w-full p-2 mb-2 rounded-md bg-[#1F1D1D] text-white"
+              name="desc"
+              value={formData.code}
+              onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+           
+            />
             <input
               type="file"
               name="image"
               className="mb-2"
               onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
             />
-            <span>code</span>
+           
             <div className="flex items-center gap-3 mb-3">
               {['yellow', 'green', 'red'].map((color) => (
                 <div
@@ -188,6 +198,9 @@ export default function Notes() {
                   alt="note-img"
                   className="rounded-md w-full max-w-xs mb-2"
                 />
+              )}
+              {note.code && (
+                <CodeEditor cd={note.code}></CodeEditor>
               )}
             </div>
           ))}
