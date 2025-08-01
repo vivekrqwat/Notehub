@@ -150,7 +150,7 @@ export default function Notes() {
                <textarea
               placeholder="@write Approach"
               className="w-full p-2 mb-2 rounded-md bg-[#1F1D1D] text-white"
-              name="desc"
+              name="Approach"
               value={formData.Approach}
               onChange={(e) => setFormData({ ...formData, Approach: e.target.value })}
             rows={5}
@@ -158,7 +158,7 @@ export default function Notes() {
              <textarea
               placeholder="@write code"
               className="w-full p-2 mb-2 rounded-md bg-[#1F1D1D] text-white"
-              name="desc"
+              name="code"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value })}
             rows={7}
@@ -213,8 +213,8 @@ export default function Notes() {
                   <FaTrash size={18} />
                 </button>
               </div>
-              <p className="text-sm mb-2 text-gray-200">{note.desc}</p>
-                         <p className="text-sm mb-2 text-gray-200">{note?.Approach}</p>
+<p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "Inter, system-ui, sans-serif", lineHeight: "1.6" }}>{note.desc}</p>
+<p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "JetBrains Mono, Consolas, monospace", lineHeight: "1.7", fontSize: "15px" }}>{note?.Approach}</p>
               {note.img && (
                 <img
                   src={note.img}
