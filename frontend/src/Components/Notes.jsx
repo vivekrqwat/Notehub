@@ -207,22 +207,11 @@ export default function Notes() {
               {note.code && (<>
 <button
   onClick={() => handlecopy(note.code)}
-  style={{
-    backgroundColor: '#2D2D2D',
-    color: '#fff',
-    border: 'none',
-    padding: '6px 12px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '12px',
-    transition: 'background 0.3s',
-    alignItems:"flex-end"
-  }}
-  onMouseEnter={(e) => (e.target.style.backgroundColor = '#444')}
-  onMouseLeave={(e) => (e.target.style.backgroundColor = '#2D2D2D')}
+  className="bg-[#2D2D2D] text-white px-3 py-1.5 rounded text-xs hover:bg-[#444] transition duration-300 ml-auto"
 >
   Copy
 </button>
+
                 <CodeEditor cd={note.code}></CodeEditor>
                 </>
               )}
