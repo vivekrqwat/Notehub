@@ -215,8 +215,17 @@ export default function Notes() {
               </div>
 <p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "Inter, system-ui, sans-serif", lineHeight: "1.6" }}>{note.desc}</p>
 <hr className="border-t border-gray-600 my-3" />
-<p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "JetBrains Mono, Consolas, monospace", lineHeight: "1.7", fontSize: "15px" }}>{note?.Approach}</p>
-              {note.img && (
+<p
+  className="text-lg mb-2 text-gray-200"
+  style={{
+    whiteSpace: "pre-wrap",
+    fontFamily: `"Inter", "Segoe UI", "Open Sans", "sans-serif"`,
+    lineHeight: "1.8",
+    fontSize: "16px"
+  }}
+>
+  {note?.Approach}
+</p>              {note.img && (
                 <img
                   src={note.img}
                   alt="note-img"
