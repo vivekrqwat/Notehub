@@ -207,13 +207,14 @@ export default function Notes() {
               <div className="flex items-center gap-2 mb-2 justify-between">
                 <div className="flex">
                   <div className={`w-4 h-4 rounded-md ${getGradeColorClass(note.grade)}`}></div>
-                  <h2 className="font-bold capitalize ml-2">{note.heading}</h2>
+                  <h2 className="font-bold capitalize ml-2 text-2xl">{note.heading}</h2>
                 </div>
                 <button className="text-red-400 hover:text-red-500" onClick={() => delnotes([noteid, note._id])}>
                   <FaTrash size={18} />
                 </button>
               </div>
 <p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "Inter, system-ui, sans-serif", lineHeight: "1.6" }}>{note.desc}</p>
+<hr className="border-t border-gray-600 my-3" />
 <p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "JetBrains Mono, Consolas, monospace", lineHeight: "1.7", fontSize: "15px" }}>{note?.Approach}</p>
               {note.img && (
                 <img
@@ -229,6 +230,7 @@ export default function Notes() {
 >
   Copy
 </button>
+<hr className="border-t border-gray-600 my-3" />
 
                 <CodeEditor cd={note.code}></CodeEditor>
                 </>
