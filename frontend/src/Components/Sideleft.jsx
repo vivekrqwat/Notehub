@@ -16,7 +16,7 @@ export default function SideLeft() {
     { icon: <FaFolder />, label: "Directory" },
     { icon: <FaUserFriends />, label: "Friends" },
     { icon: <FaUsers />, label: "Collaboration" },
-    { icon: <FaCalendarAlt />, label: "Schedule" },
+    // { icon: <FaCalendarAlt />, label: "Schedule" },
   ];
 
   const givepath = (label) => {
