@@ -63,6 +63,10 @@ router.put("/:id",authenticate,async(req,res)=>{
 router.delete("/:id",async(req,res)=>{
     const id=req.params.id
     try{
+        console.log("delete dir",id)
+         // Delete all notes associated with this directory
+         await Directorymodel.updateMany({ dirid: id }, { $pull: { content: {} } });
+         // Now delete the directory itself
        
         const deletedir= await Directorymodel.findByIdAndDelete(id)
          console.log("delete dir",id,deletedir)

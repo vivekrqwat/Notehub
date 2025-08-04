@@ -34,11 +34,11 @@ export default function Directory() {
   const Delnotes = async (noteId, dirId) => {
     try {
       await Delete("noteid", noteId);
-      // setNotesMap((prev) => ({
-      //   ...prev,
-      //   [dirId]: prev[dirId].filter((note) => note._id !== noteId),
-      // }));
-      fetchDirData(); // Refresh directories after deletion
+      setNotesMap((prev) => ({
+        ...prev,
+        [dirId]: prev[dirId].filter((note) => note._id !== noteId),
+      }));
+      // fetchDirData(); // Refresh directories after deletion
     } catch (e) {
       console.log(e);
     }
@@ -69,6 +69,7 @@ export default function Directory() {
       await Delete("dir", id);
       await Delete("notes", id);
     } catch (e) {
+      console.log("error",e);
       console.log(e);
     }
     fetchDirData();
@@ -103,6 +104,14 @@ export default function Directory() {
       case "green": return "bg-green-500";
       case "red": return "bg-red-500";
       case "yellow": return "bg-yellow-400";
+      default: return "bg-gray-500";
+    }
+  };
+    const getGrade = (grade) => {
+    switch (grade) {
+      case "green": return "Easy";
+      case "red": return "Hard";
+      case "yellow": return "Medium";
       default: return "bg-gray-500";
     }
   };
@@ -175,10 +184,10 @@ export default function Directory() {
                 />
                 <div className="flex gap-4 text-sm">
                   {["green", "red", "yellow"].map((color) => (
-                    <label key={color} className="flex items-center gap-2">
+                    <label key={color} className="flex items-center gap-1">
                       <div className={`w-6 h-4 rounded-sm ${getGradeColorClass(color)}`}></div>
                       <input type="radio" name="grade" value={color} required />
-                      {color.charAt(0).toUpperCase() + color.slice(1)}
+                      {getGrade(color)}
                     </label>
                   ))}
                 </div>
@@ -192,7 +201,7 @@ export default function Directory() {
             )}
 
             {openDir === dir._id && notesMap[dir._id]?.length > 0 && (
-              <div className="mt-4 space-y-3">
+  <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
                 {notesMap[dir._id].map((note) => (
                   <div
                     key={note._id}

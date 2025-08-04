@@ -96,7 +96,7 @@ console.log(req.body,"update")
     }
 })
 //delete
-router.delete("/:id",authenticate,async(req,res)=>{
+router.delete("/:id",async(req,res)=>{
     const id=req.params.id
     try{
         const note = await Notesmodel.findById(id);
