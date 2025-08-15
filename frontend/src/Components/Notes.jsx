@@ -7,6 +7,7 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import Speech from './Speech.jsx';
 import { UserStore } from '../store/Userstroe.jsx';
 import CodeEditor from './CodeEditor.jsx';
+import { toast } from 'react-toastify';
 
 
 const API = import.meta.env.VITE_API_URL;
@@ -18,6 +19,8 @@ export default function Notes() {
   const [showForm, setShowForm] = useState(false);
   const [contentdata, setcontentdata] = useState([]);
   const [show, setShow] = useState(false);
+  const [descvalue, setdescvalue] = useState("");
+  const[editid,seteditid]=useState(null);
   const [formData, setFormData] = useState({
     heading: '',
     desc: '',
@@ -27,8 +30,36 @@ export default function Notes() {
   });
   const [showcode, setshowcode] = useState(false);
   const { user } = UserStore();
+const edit=(idx)=>{
+  seteditid(idx);
+  setdescvalue(contentdata[idx]?.desc||" ");
+}
+const saveDesc = async (noteId) => {
+  try {
+    
+    // Prepare updated content array
+    const updatedContent = contentdata.map((item) =>
+      item._id === noteId ? { ...item, desc: descvalue } : item
+    );
 
-  
+    // Update backend
+    await axios.put(
+      `${API}/apii/notes/${noteid}`,
+      { content: updatedContent },
+      { withCredentials: true }
+    );
+
+    // Update frontend state
+    setcontentdata(updatedContent);
+
+    // Exit edit mode
+    seteditid(null);
+  } catch (error) {
+    console.error("Error saving description:", error);
+  }
+};
+
+ 
 
   const fetchNote = async () => {
     if (!noteid) return;
@@ -203,7 +234,7 @@ export default function Notes() {
 
         <div className="space-y-4 overflow-y-auto max-h-[80vh] pr-2">
           {contentdata.map((note, idx) => (
-            <div key={idx} className="bg-[#2a2a2a] p-4 rounded-xl w-full">
+            <div key={idx} className="bg-[#2a2a2a] p-4 rounded-xl w-full" onClick={()=>edit(idx)}>
               <div className="flex items-center gap-2 mb-2 justify-between">
                 <div className="flex">
                   <div className={`w-4 h-4 rounded-md ${getGradeColorClass(note.grade)}`}></div>
@@ -213,7 +244,41 @@ export default function Notes() {
                   <FaTrash size={18} />
                 </button>
               </div>
-<p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "Inter, system-ui, sans-serif", lineHeight: "1.6" }}>{note.desc}</p>
+              {editid==idx ?
+              <div onClick={(e) => e.stopPropagation()}>
+               <textarea
+              placeholder="@write code"
+              className="w-full p-2 mb-2 rounded-md bg-[#1F1D1D] text-white"
+              name="code"
+              value={descvalue}
+              onChange={(e) => setdescvalue(e.target.value)}
+            rows={18}
+            />
+           <div className="flex gap-3 justify-end">
+      <button
+        onClick={() => saveDesc(note._id)}
+        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-semibold transition duration-200"
+      >
+        Save
+      </button>
+    <button
+  onClick={() => {
+    
+    seteditid(null);
+  console.log("cancel",editid,idx);
+  }
+  }
+  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-xl font-semibold transition duration-200"
+>
+  Cancel
+</button>
+
+    </div>
+            </div>
+              :
+                  <p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "Inter, system-ui, sans-serif", lineHeight: "1.6" }} >{note.desc}</p> }
+
+
 <hr className="border-t border-gray-600 my-3" />
 <p
   className="text-lg mb-2 text-gray-200"
@@ -225,7 +290,7 @@ export default function Notes() {
   }}
 >
   {note?.Approach}
-</p>              {note.img && (
+</p>                {note.img && (
                 <img
                   src={note.img}
                   alt="note-img"

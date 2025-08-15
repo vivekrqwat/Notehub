@@ -81,7 +81,7 @@ router.get('/all/:id',async(req,res)=>{
 
 
 // update dir
-router.put("/:id",authenticate,async(req,res)=>{
+router.put("/:id",async(req,res)=>{
     const id=req.params.id
 console.log(req.body,"update")
     try{
