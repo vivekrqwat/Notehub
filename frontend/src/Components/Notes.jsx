@@ -140,29 +140,30 @@ const saveDesc = async (noteId) => {
 
   const setimg=(i)=>{
     setsizeimg(true)
- 
+ console.log("hello")
     setimgsrc(i);
 
   }
   if (!noteid) return <div>No note selected</div>;
   if (loading) return <div>Loading...</div>;
-  if(sizeimg)
-     return  <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 p-4">
-    <div className="w-full max-w-4xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden border border-white/20">
-      <img 
-        src={imgsrc} 
-        onClick={() => setsizeimg(prv => !prv)} 
-        className="w-full h-full object-cover cursor-pointer"
-      />
-    </div>
-  </div>
+ 
 
 
 
 
   return (
    <div className="min-h-screen max-h-screen overflow-y-auto bg-[#1F1D1D] text-white p-4 sm:p-6">
-
+ {sizeimg && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 p-4">
+    <div className="w-full max-w-4xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden border border-white/20">
+      <img 
+        src={imgsrc} 
+        onClick={() => setsizeimg(false)} 
+        className="w-full h-full object-cover cursor-pointer"
+      />
+    </div>
+  </div>
+)}
       <div className="max-w-4xl mx-auto w-full">
         {show?<Speech setshow={setShow} desc={setFormData}></Speech>:null}
         <div className="flex justify-between items-center mb-4">
