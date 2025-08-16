@@ -21,6 +21,8 @@ export default function Notes() {
   const [show, setShow] = useState(false);
   const [descvalue, setdescvalue] = useState("");
   const[editid,seteditid]=useState(null);
+  const[sizeimg,setsizeimg]=useState(false);
+  const[imgsrc,setimgsrc]=useState('');
   const [formData, setFormData] = useState({
     heading: '',
     desc: '',
@@ -34,6 +36,10 @@ const edit=(idx)=>{
   seteditid(idx);
   setdescvalue(contentdata[idx]?.desc||" ");
 }
+
+
+
+
 const saveDesc = async (noteId) => {
   try {
     
@@ -131,8 +137,28 @@ const saveDesc = async (noteId) => {
     }
   }, [noteid]);
 
+
+  const setimg=(i)=>{
+    setsizeimg(true)
+ 
+    setimgsrc(i);
+
+  }
   if (!noteid) return <div>No note selected</div>;
   if (loading) return <div>Loading...</div>;
+  if(sizeimg)
+     return  <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 p-4">
+    <div className="w-full max-w-4xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden border border-white/20">
+      <img 
+        src={imgsrc} 
+        onClick={() => setsizeimg(prv => !prv)} 
+        className="w-full h-full object-cover cursor-pointer"
+      />
+    </div>
+  </div>
+
+
+
 
   return (
    <div className="min-h-screen max-h-screen overflow-y-auto bg-[#1F1D1D] text-white p-4 sm:p-6">
@@ -234,7 +260,7 @@ const saveDesc = async (noteId) => {
 
         <div className="space-y-4 overflow-y-auto max-h-[80vh] pr-2">
           {contentdata.map((note, idx) => (
-            <div key={idx} className="bg-[#2a2a2a] p-4 rounded-xl w-full" onClick={()=>edit(idx)}>
+            <div key={idx} className="bg-[#2a2a2a] p-4 rounded-xl w-full" >
               <div className="flex items-center gap-2 mb-2 justify-between">
                 <div className="flex">
                   <div className={`w-4 h-4 rounded-md ${getGradeColorClass(note.grade)}`}></div>
@@ -276,7 +302,7 @@ const saveDesc = async (noteId) => {
     </div>
             </div>
               :
-                  <p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "Inter, system-ui, sans-serif", lineHeight: "1.6" }} >{note.desc}</p> }
+                  <p className="text-base mb-2 text-gray-200" style={{ whiteSpace: "pre-wrap", fontFamily: "Inter, system-ui, sans-serif", lineHeight: "1.6" }}  onClick={()=>edit(idx)}>{note.desc}</p> }
 
 
 <hr className="border-t border-gray-600 my-3" />
@@ -290,11 +316,14 @@ const saveDesc = async (noteId) => {
   }}
 >
   {note?.Approach}
+
 </p>                {note.img && (
                 <img
                   src={note.img}
                   alt="note-img"
-                  className="rounded-md w-full max-w-xs mb-2"
+                  className="rounded-md w-full  mb-2"
+                  onClick={()=>setimg(note.img)}
+
                 />
               )}
               {note.code && (<>
